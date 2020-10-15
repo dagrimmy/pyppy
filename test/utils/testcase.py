@@ -9,4 +9,3 @@ class TestCase(unittest.TestCase):
             yield None
         except exc_type:
             raise self.failureException("{} raised".format(exc_type.__name__))
-
