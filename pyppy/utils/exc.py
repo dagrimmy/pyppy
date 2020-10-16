@@ -1,0 +1,2 @@
+class ConfigAlreadyInitializedException(Exception):
+    pass

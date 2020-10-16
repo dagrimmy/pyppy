@@ -1,19 +1,28 @@
-CONFIG = "pyppy"
+from pyppy.utils.exc import ConfigAlreadyInitializedException
+
+_CONFIG = "pyppy"
 
 
 def initialize_config(args):
+    if hasattr(config, _CONFIG):
+        raise ConfigAlreadyInitializedException((
+            "Config has already been initialized. "
+            "If you want to initialize a new config call "
+            f"{destroy_config.__name__}()."
+        ))
     config(args)
 
 
 def config(args=None):
-    if not hasattr(config, CONFIG) and args:
-        setattr(config, CONFIG, args)
-    if not hasattr(config, CONFIG):
+    if not hasattr(config, _CONFIG) and args:
+        setattr(config, _CONFIG, args)
+    if not hasattr(config, _CONFIG):
         raise Exception("Please initialize config first!")
 
-    return getattr(config, CONFIG)
+    return getattr(config, _CONFIG)
 
 
 def destroy_config():
-    if hasattr(config, CONFIG):
-        delattr(config, CONFIG)
+    if hasattr(config, _CONFIG):
+        delattr(config, _CONFIG)
+
