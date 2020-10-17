@@ -3,6 +3,7 @@ import re
 import sys
 from argparse import ArgumentParser
 
+from pyppy.arguments.fill_arguments import fill_arguments
 from pyppy.conditions.conditions import condition, s_, and_
 from pyppy.config.get_config import destroy_config, initialize_config
 from pyppy.pipeline.pipeline import step, Pipeline
@@ -13,6 +14,10 @@ from test.utils.testcase import TestCase
 class PipelineTest(TestCase):
 
     def setUp(self) -> None:
+        destroy_config()
+        Pipeline.destroy()
+
+    def tearDown(self) -> None:
         destroy_config()
         Pipeline.destroy()
 
@@ -89,6 +94,7 @@ class PipelineTest(TestCase):
         parser.add_argument("--b", default="b_")
 
         @step("tmp")
+        @fill_arguments
         def tmp1(a, b="c"):
             return f"func1:{a}{b}"
 
@@ -104,6 +110,7 @@ class PipelineTest(TestCase):
         parser.add_argument("--b", default="b_")
 
         @step("tmp")
+        @fill_arguments
         def tmp1(x, b="c"):
             return f"func1:{x}{b}"
 
@@ -119,11 +126,13 @@ class PipelineTest(TestCase):
         parser.add_argument("--b", default="b_")
 
         @step("tmp")
+        @fill_arguments
         def tmp1(a, b="c"):
             return f"func1:{a}{b}"
 
         @step("tmp")
         @condition(s_(a="_"))
+        @fill_arguments
         def tmp2():
             print("func2")
             return "func2"
@@ -141,6 +150,7 @@ class PipelineTest(TestCase):
         parser.add_argument("--b", default="b_")
 
         @step("tmp")
+        @fill_arguments
         def tmp1(a, b="c"):
             return f"func1:{a}{b}"
 
@@ -161,3 +171,5 @@ class PipelineTest(TestCase):
         self.assertTrue(len(result) == 2)
         self.assertEqual(result[0], "func1:a_b__")
         self.assertEqual(result[1], "func2")
+
+

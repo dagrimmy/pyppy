@@ -1,4 +1,3 @@
-import functools
 from inspect import signature
 
 from pyppy.config.get_config import config
@@ -39,18 +38,11 @@ def fill_function_parameters_from_config(params):
 def step(pipeline_name):
 
     def decorator(func):
-        params = get_function_params(func)
-
-        @functools.wraps(func)
-        def inner():
-            new_params = fill_function_parameters_from_config(params)
-            return func(**new_params)
-
         Pipeline.pipelines.setdefault(
             pipeline_name, []
-        ).append(inner)
+        ).append(func)
 
-        return inner
+        return func
     return decorator
 
 

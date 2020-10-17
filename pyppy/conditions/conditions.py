@@ -48,14 +48,13 @@ def s_(single_condition=None, **kwargs):
 
 
 def condition(exp):
-
     def condition_decorator(func):
         condition_decorator.exp = exp
 
         @functools.wraps(func)
         def condition_check(*args, **kwargs):
+            condition_check.exp = exp
             if condition_decorator.exp():
                 return func(*args, **kwargs)
         return condition_check
-
     return condition_decorator
