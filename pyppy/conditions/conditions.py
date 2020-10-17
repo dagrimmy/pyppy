@@ -1,6 +1,9 @@
 import functools
+import inspect
 
 from pyppy.config.get_config import config
+from pyppy.config.get_container import container
+from pyppy.utils.exc import AmbiguousConditionValuesException, ConditionRaisedException
 
 
 def and_(*args):
@@ -22,13 +25,47 @@ def or_(*args):
     return inner
 
 
-def s_(single_condition=None, **kwargs):
+def evaluate_single_condition(single_condition):
+    exceptions = []
+
+    try:
+        conf_value = single_condition(config())
+    except Exception as e1:
+        exceptions.append(e1)
+        conf_value = None
+
+    try:
+        cont_value = single_condition(container())
+    except Exception as e2:
+        exceptions.append(e2)
+        cont_value = None
+
+    if conf_value is None and cont_value is None:
+        raise ConditionRaisedException(exceptions)
+
+    if conf_value is not None and cont_value is not None:
+        if conf_value != cont_value:
+            raise AmbiguousConditionValuesException(
+                ("\n\tAmbiguous condition values for "
+                 "config and container! \n\tThis happens "
+                 "because config() and container() hold "
+                 "attributes with same names\n\tbut evaluate to "
+                 "different boolean values with the current "
+                 "condition.\n\tYou might want to choose unique"
+                 " names to avoid these errors.")
+            )
+
+    if conf_value:
+        return conf_value
+
+    if cont_value:
+        return cont_value
+
+
+def s_(single_condition=None, container_name=None, **kwargs):
     def condition_evaluator():
         if single_condition:
-            value = single_condition(config())
-            if not isinstance(value, bool):
-                raise Exception("Only boolean expressions are allowed!")
-            return value
+            return evaluate_single_condition(single_condition)
 
         if len(kwargs) > 1:
             raise Exception(

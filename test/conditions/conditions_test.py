@@ -1,6 +1,8 @@
 from argparse import ArgumentParser, Namespace
 
 from pyppy.conditions.conditions import condition, s_, and_, or_
+from pyppy.config.get_container import container, destroy_container
+from pyppy.utils.exc import AmbiguousConditionValuesException, ConditionRaisedException
 from test.utils.testcase import TestCase
 from pyppy.config.get_config import initialize_config, destroy_config, config
 
@@ -9,6 +11,7 @@ class ConditionsTest(TestCase):
 
     def setUp(self) -> None:
         destroy_config()
+        destroy_container(destroy_all=True)
 
     def test_single_condition_true(self):
         parser = ArgumentParser()
@@ -26,6 +29,78 @@ class ConditionsTest(TestCase):
 
         self.assertTrue(tmp() == "returned")
 
+    def test_wrong_condition(self):
+        parser = ArgumentParser()
+        parser.add_argument("--tmp1", type=int)
+
+        cli_args = ["--tmp1", "1"]
+
+        args = parser.parse_args(cli_args)
+
+        initialize_config(args)
+
+        @condition(s_(lambda c: c.tmp()))
+        def tmp1():
+            container().tmp2 = 2
+            return "tmp1 returned"
+
+        with self.assertRaises(ConditionRaisedException):
+            tmp1()
+
+        try:
+            tmp1()
+        except ConditionRaisedException as e:
+            self.assertTrue(isinstance(e.args[0][0], AttributeError))
+            self.assertTrue(isinstance(e.args[0][1], AttributeError))
+
+    def test_single_condition_container(self):
+        parser = ArgumentParser()
+        parser.add_argument("--tmp1", type=int)
+
+        cli_args = ["--tmp1", "1"]
+
+        args = parser.parse_args(cli_args)
+
+        initialize_config(args)
+
+        @condition(s_(lambda c: c.tmp1 == 1))
+        def tmp1():
+            container().tmp2 = 2
+            return "tmp1 returned"
+
+        @condition(s_(lambda c: c.tmp2 == 2))
+        def tmp2():
+            return "tmp2 returned"
+
+        self.assertEqual("tmp1 returned", tmp1())
+        self.assertEqual("tmp2 returned", tmp2())
+
+        tmp1()
+        tmp2()
+
+    def test_conflicting_condition_values(self):
+        parser = ArgumentParser()
+        parser.add_argument("--tmp1", type=int)
+
+        cli_args = ["--tmp1", "1"]
+
+        args = parser.parse_args(cli_args)
+
+        initialize_config(args)
+
+        @condition(s_(lambda c: c.tmp1 == 1))
+        def tmp1():
+            container().tmp1 = 2
+            return "tmp1 returned"
+
+        @condition(s_(lambda c: c.tmp1 == 1))
+        def tmp2():
+            return "tmp2 returned"
+
+        tmp1()
+        with self.assertRaises(AmbiguousConditionValuesException):
+            tmp2()
+
     def test_single_condition_false(self):
         parser = ArgumentParser()
         parser.add_argument("--tmp1", type=int)
@@ -39,6 +114,10 @@ class ConditionsTest(TestCase):
         @condition(s_(lambda c: c.tmp1 == 2))
         def tmp():
             return "returned"
+
+        # regression test
+        with self.assertNotRaises(ConditionRaisedException):
+            tmp()
 
         self.assertIsNone(tmp())
 
@@ -87,8 +166,15 @@ class ConditionsTest(TestCase):
         def tmp1():
             return "returned"
 
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(ConditionRaisedException):
             tmp1()
+
+        try:
+            tmp1()
+        except ConditionRaisedException as e:
+            self.assertTrue(isinstance(e.args[0][0], AttributeError))
+            self.assertTrue(isinstance(e.args[0][1], AttributeError))
+
 
         # don't raise when sub command check comes first
         @condition(

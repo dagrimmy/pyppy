@@ -1,4 +1,4 @@
-_CONFIG = "contayner"
+_CONTAINER = "contayner"
 
 
 class Container:
@@ -7,8 +7,33 @@ class Container:
         pass
 
 
-def container():
-    if not hasattr(container, _CONFIG):
-        setattr(container, _CONFIG, Container())
+def destroy_container(container_name=None, destroy_all=False):
+    if destroy_all:
+        keys = list(container.__dict__.keys())
+        for key in keys:
+            container.__dict__.pop(key)
 
-    return getattr(container, _CONFIG)
+    def _destroy(name):
+        if not hasattr(container, name):
+            return
+        delattr(container, name)
+
+    if not container_name:
+        _destroy(_CONTAINER)
+    else:
+        _destroy(container_name)
+
+
+def container(container_name=None):
+
+    def _get_container(name):
+        if not hasattr(container, name):
+            setattr(container, name, Container())
+
+        return getattr(container, name)
+
+    if not container_name:
+        return _get_container(_CONTAINER)
+    else:
+        return _get_container(container_name)
+

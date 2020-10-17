@@ -12,3 +12,12 @@ class MissingConfigParamException(Exception):
 
 class PipelineAlreadyExistsException(Exception):
     pass
+
+
+class AmbiguousConditionValuesException(Exception):
+    pass
+
+
+class ConditionRaisedException(Exception):
+    pass
+

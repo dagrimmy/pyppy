@@ -1,6 +1,6 @@
 from pyppy.utils.exc import ConfigAlreadyInitializedException
 
-_CONFIG = "pyppy"
+_CONFIG = "confyg"
 
 
 def initialize_config(args):
