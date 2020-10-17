@@ -8,3 +8,7 @@ class MissingPipelineException(Exception):
 
 class MissingConfigParamException(Exception):
     pass
+
+
+class PipelineAlreadyExistsException(Exception):
+    pass

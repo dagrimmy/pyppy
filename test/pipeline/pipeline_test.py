@@ -7,7 +7,7 @@ from pyppy.arguments.fill_arguments import fill_arguments
 from pyppy.conditions.conditions import condition, s_, and_
 from pyppy.config.get_config import destroy_config, initialize_config
 from pyppy.pipeline.pipeline import step, Pipeline
-from pyppy.utils.exc import MissingPipelineException, MissingConfigParamException
+from pyppy.utils.exc import MissingPipelineException, MissingConfigParamException, PipelineAlreadyExistsException
 from test.utils.testcase import TestCase
 
 
@@ -52,12 +52,12 @@ class PipelineTest(TestCase):
         self.assertTrue("hurz2" in str(steps["hurz"][1]))
 
     def test_run_pipeline(self):
-        @step("tmp")
+        @step("tmp", "first")
         def tmp1():
             print("func1")
             return "func1"
 
-        @step("tmp")
+        @step("tmp", "second")
         def tmp2():
             print("func2")
             return "func2"
@@ -85,8 +85,8 @@ class PipelineTest(TestCase):
 
         results = [r for r in Pipeline.run_r("tmp")]
         self.assertTrue(len(results) == 2)
-        self.assertTrue(results[0] == "func1")
-        self.assertTrue(results[1] == "func2")
+        self.assertTrue(results[0] == ("first", "func1"))
+        self.assertTrue(results[1] == ("second", "func2"))
 
     def test_inject_from_config(self):
         parser = ArgumentParser()
@@ -102,7 +102,7 @@ class PipelineTest(TestCase):
         initialize_config(parser.parse_args(cli_args))
 
         result = [r for r in Pipeline.run_r("tmp")][0]
-        self.assertEqual(result, "func1:a_b__")
+        self.assertEqual(result, ("tmp1", "func1:a_b__"))
 
     def test_inject_failure(self):
         parser = ArgumentParser()
@@ -125,12 +125,12 @@ class PipelineTest(TestCase):
         parser.add_argument("--a", default="a_")
         parser.add_argument("--b", default="b_")
 
-        @step("tmp")
+        @step("tmp", "first")
         @fill_arguments
         def tmp1(a, b="c"):
             return f"func1:{a}{b}"
 
-        @step("tmp")
+        @step("tmp", "second")
         @condition(s_(a="_"))
         @fill_arguments
         def tmp2():
@@ -141,15 +141,15 @@ class PipelineTest(TestCase):
 
         result = [r for r in Pipeline.run_r("tmp")]
         self.assertTrue(len(result) == 2)
-        self.assertEqual(result[0], "func1:a_b__")
-        self.assertEqual(result[1], None)
+        self.assertEqual(result[0], ("first", "func1:a_b__"))
+        self.assertEqual(result[1], ("second", None))
 
     def test_conditional_execution_2(self):
         parser = ArgumentParser()
         parser.add_argument("--a", default="a_")
         parser.add_argument("--b", default="b_")
 
-        @step("tmp")
+        @step("tmp", "first")
         @fill_arguments
         def tmp1(a, b="c"):
             return f"func1:{a}{b}"
@@ -159,7 +159,7 @@ class PipelineTest(TestCase):
             s_(b="b__")
         )
 
-        @step("tmp")
+        @step("tmp", "second")
         @condition(exp)
         def tmp2():
             print("func2")
@@ -169,7 +169,81 @@ class PipelineTest(TestCase):
 
         result = [r for r in Pipeline.run_r("tmp")]
         self.assertTrue(len(result) == 2)
-        self.assertEqual(result[0], "func1:a_b__")
-        self.assertEqual(result[1], "func2")
+        self.assertEqual(result[0], ("first", "func1:a_b__"))
+        self.assertEqual(result[1], ("second", "func2"))
 
+    def test_create_pipeline_from_iterable(self):
+        def tmp1():
+            return f"1"
 
+        def tmp2():
+            return f"2"
+
+        def tmp3():
+            return f"3"
+
+        Pipeline.create_pipeline("iter-tmp", [
+            ("tmp-1", tmp1),
+            ("tmp-2", tmp2),
+            ("tmp-3", tmp3)
+        ])
+
+        result = [r for r in Pipeline.run_r("iter-tmp")]
+
+        self.assertTrue(len(result) == 3)
+        self.assertEqual(result[0][1], "1")
+        self.assertEqual(result[1][1], "2")
+        self.assertEqual(result[2][1], "3")
+
+    def test_pipeline_dict_results(self):
+        def tmp1():
+            return f"1"
+
+        def tmp2():
+            return f"2"
+
+        def tmp3():
+            return f"3"
+
+        Pipeline.create_pipeline("iter-tmp", [
+            ("tmp-1", tmp1),
+            ("tmp-2", tmp2),
+            ("tmp-3", tmp3)
+        ])
+
+        result = dict([r for r in Pipeline.run_r("iter-tmp")])
+
+        self.assertTrue(len(result) == 3)
+        self.assertEqual(result["tmp-1"], "1")
+        self.assertEqual(result["tmp-2"], "2")
+        self.assertEqual(result["tmp-3"], "3")
+
+    def test_pipeline_already_exists(self):
+        def tmp1():
+            return f"1"
+
+        def tmp2():
+            return f"2"
+
+        def tmp3():
+            return f"3"
+
+        Pipeline.create_pipeline("tmp", [("tmp-1", tmp1)])
+
+        with self.assertRaises(PipelineAlreadyExistsException):
+            Pipeline.create_pipeline("tmp", [("tmp-2", tmp2)])
+
+        self.assertTrue(len(Pipeline.pipelines["tmp"]) == 1)
+
+        with self.assertRaises(PipelineAlreadyExistsException):
+            Pipeline.create_pipeline("tmp", [("tmp-3", tmp3)], extend=False)
+
+        self.assertTrue(len(Pipeline.pipelines["tmp"]) == 1)
+
+        Pipeline.create_pipeline("tmp", [("tmp-2", tmp2), ("tmp-3", tmp3)], extend=True)
+        self.assertTrue(len(Pipeline.pipelines["tmp"]) == 3)
+
+        result = dict(Pipeline.run_r("tmp"))
+        self.assertEqual(result["tmp-1"], "1")
+        self.assertEqual(result["tmp-2"], "2")
+        self.assertEqual(result["tmp-3"], "3")

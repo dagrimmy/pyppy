@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from collections import OrderedDict
 
 from pyppy.arguments.fill_arguments import fill_arguments
 from pyppy.conditions.conditions import condition, s_
@@ -47,5 +48,5 @@ class DecoratorStackingTest(TestCase):
 
         result = [r for r in Pipeline.run_r("tmp")]
         self.assertEqual(len(result), 2)
-        self.assertEqual(result[0], "func1:1")
-        self.assertIsNone(result[1])
+        self.assertEqual(result[0][1], "func1:1")
+        self.assertIsNone(result[1][1])

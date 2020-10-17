@@ -1,3 +1,4 @@
+import functools
 from inspect import signature
 
 from pyppy.config.get_config import config
@@ -38,8 +39,9 @@ def fill_function_parameters_from_config(params):
 def fill_arguments(func):
     params = get_function_params(func)
 
-    def inner():
+    @functools.wraps(func)
+    def argument_filler():
         new_params = fill_function_parameters_from_config(params)
         return func(**new_params)
 
-    return inner
+    return argument_filler

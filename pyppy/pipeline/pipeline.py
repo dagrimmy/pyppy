@@ -1,7 +1,7 @@
 from inspect import signature
 
 from pyppy.config.get_config import config
-from pyppy.utils.exc import MissingPipelineException, MissingConfigParamException
+from pyppy.utils.exc import MissingPipelineException, MissingConfigParamException, PipelineAlreadyExistsException
 
 
 def get_function_params(function):
@@ -35,12 +35,17 @@ def fill_function_parameters_from_config(params):
     return new_params
 
 
-def step(pipeline_name):
+def step(pipeline_name, step_name=None):
 
     def decorator(func):
+        if not step_name:
+            inner_step_name = func.__name__
+        else:
+            inner_step_name = step_name
+
         Pipeline.pipelines.setdefault(
             pipeline_name, []
-        ).append(func)
+        ).append((inner_step_name, func))
 
         return func
     return decorator
@@ -51,24 +56,47 @@ class Pipeline:
     pipelines = {}
 
     @staticmethod
-    def _check_pipeline_name(pipeline_name):
-        if pipeline_name not in Pipeline.pipelines:
-            raise MissingPipelineException(
-                f"Pipeline with name {pipeline_name} does not exist!"
-            )
+    def _pipeline_exists(pipeline_name):
+        if pipeline_name in Pipeline.pipelines:
+            return True
+        else:
+            return False
 
     @staticmethod
     def run_r(pipeline_name):
-        Pipeline._check_pipeline_name(pipeline_name)
+        if not Pipeline._pipeline_exists(pipeline_name):
+            raise MissingPipelineException((
+                f"Pipeline with name {pipeline_name} does "
+                f"not exist!"
+            ))
         for func in Pipeline.pipelines[pipeline_name]:
-            yield func()
+            print(func)
+            yield func[0], func[1]()
 
     @staticmethod
     def run(pipeline_name):
-        Pipeline._check_pipeline_name(pipeline_name)
+        if not Pipeline._pipeline_exists(pipeline_name):
+            raise MissingPipelineException((
+                f"Pipeline with name {pipeline_name} does "
+                f"not exist!"
+            ))
         for func in Pipeline.pipelines[pipeline_name]:
-            func()
+            func[1]()
 
     @staticmethod
-    def destroy():
-        Pipeline.pipelines = {}
+    def destroy(pipeline_name=None):
+        if not pipeline_name:
+            Pipeline.pipelines = {}
+        else:
+            Pipeline.pipelines.pop(pipeline_name, None)
+
+    @staticmethod
+    def create_pipeline(pipeline_name, iterable_of_tuples, extend=False):
+        if Pipeline._pipeline_exists(pipeline_name) and not extend:
+            raise PipelineAlreadyExistsException((
+                f"Pipeline with name {pipeline_name} already exists!"
+            ))
+        for item in iterable_of_tuples:
+            Pipeline.pipelines.setdefault(
+                pipeline_name, []
+            ).append(item)
