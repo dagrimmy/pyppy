@@ -21,3 +21,7 @@ class AmbiguousConditionValuesException(Exception):
 class ConditionRaisedException(Exception):
     pass
 
+
+class ConditionDidNotReturnBooleansException(Exception):
+    pass
+

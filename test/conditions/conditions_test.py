@@ -2,7 +2,8 @@ from argparse import ArgumentParser, Namespace
 
 from pyppy.conditions.conditions import condition, s_, and_, or_
 from pyppy.config.get_container import container, destroy_container
-from pyppy.utils.exc import AmbiguousConditionValuesException, ConditionRaisedException
+from pyppy.utils.exc import AmbiguousConditionValuesException, ConditionRaisedException, \
+    ConditionDidNotReturnBooleansException
 from test.utils.testcase import TestCase
 from pyppy.config.get_config import initialize_config, destroy_config, config
 
@@ -77,6 +78,21 @@ class ConditionsTest(TestCase):
 
         tmp1()
         tmp2()
+
+    def test_false_return_for_condition(self):
+        parser = ArgumentParser()
+        parser.add_argument("--tmp1", type=int)
+        cli_args = ["--tmp1", "1"]
+        args = parser.parse_args(cli_args)
+        initialize_config(args)
+
+        @condition(s_(lambda c: str(c.tmp1)))
+        def tmp1():
+            container().tmp1 = 2
+            return "tmp1 returned"
+
+        with self.assertRaises(ConditionDidNotReturnBooleansException):
+            tmp1()
 
     def test_conflicting_condition_values(self):
         parser = ArgumentParser()

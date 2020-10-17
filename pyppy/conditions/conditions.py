@@ -3,7 +3,8 @@ import inspect
 
 from pyppy.config.get_config import config
 from pyppy.config.get_container import container
-from pyppy.utils.exc import AmbiguousConditionValuesException, ConditionRaisedException
+from pyppy.utils.exc import AmbiguousConditionValuesException, ConditionRaisedException, \
+    ConditionDidNotReturnBooleansException
 
 
 def and_(*args):
@@ -55,11 +56,21 @@ def evaluate_single_condition(single_condition):
                  " names to avoid these errors.")
             )
 
-    if conf_value:
+    def _check_bool(value):
+        if isinstance(value, bool):
+            return True
+        else:
+            return False
+
+    if _check_bool(conf_value):
         return conf_value
 
-    if cont_value:
+    if _check_bool(cont_value):
         return cont_value
+
+    raise ConditionDidNotReturnBooleansException(
+        "The condition did not return a valid boolean!"
+    )
 
 
 def s_(single_condition=None, container_name=None, **kwargs):
