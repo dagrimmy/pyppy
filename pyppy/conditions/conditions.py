@@ -1,5 +1,4 @@
 import functools
-import inspect
 
 from pyppy.config.get_config import config
 from pyppy.config.get_container import container

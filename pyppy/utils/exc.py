@@ -25,3 +25,6 @@ class ConditionRaisedException(Exception):
 class ConditionDidNotReturnBooleansException(Exception):
     pass
 
+
+class ConflictingArgumentValuesException(Exception):
+    pass

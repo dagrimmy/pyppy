@@ -6,6 +6,12 @@ class Container:
     def __init__(self):
         pass
 
+    def __str__(self):
+        output = ""
+        for _, var in vars(self).items():
+            output += str(var)
+        return output
+
 
 def destroy_container(container_name=None, destroy_all=False):
     if destroy_all:

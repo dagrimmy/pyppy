@@ -70,7 +70,6 @@ class Pipeline:
                 f"not exist!"
             ))
         for func in Pipeline.pipelines[pipeline_name]:
-            print(func)
             yield func[0], func[1]()
 
     @staticmethod
