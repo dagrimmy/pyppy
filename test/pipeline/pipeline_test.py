@@ -4,7 +4,7 @@ import sys
 from argparse import ArgumentParser
 
 from pyppy.arguments.fill_arguments import fill_arguments
-from pyppy.conditions.conditions import condition, s_, and_
+from pyppy.conditions.conditions import condition, exp, and_
 from pyppy.config.get_config import destroy_config, initialize_config
 from pyppy.pipeline.pipeline import step, Pipeline
 from pyppy.utils.exc import MissingPipelineException, MissingConfigParamException, PipelineAlreadyExistsException
@@ -131,7 +131,7 @@ class PipelineTest(TestCase):
             return f"func1:{a}{b}"
 
         @step("tmp", "second")
-        @condition(s_(a="_"))
+        @condition(exp(a="_"))
         @fill_arguments
         def tmp2():
             print("func2")
@@ -155,8 +155,8 @@ class PipelineTest(TestCase):
             return f"func1:{a}{b}"
 
         exp = and_(
-            s_(a="a_"),
-            s_(b="b__")
+            exp(a="a_"),
+            exp(b="b__")
         )
 
         @step("tmp", "second")

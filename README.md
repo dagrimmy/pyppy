@@ -29,3 +29,7 @@ are stored with a name on first creation)
 ## todos
 * check boolean expressions; check always if None or not None where no booleans
 are expected to avoid wrong checks
+* check if custom configs work (objects holding just instance attributes)
+* possibility to specify arguments for pipeline steps that must be filled in runtime
+(add args after pipeline has been created)
+    * imagine different pipeline runs with one arg changing 

@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 import pandas as pd
 
 from pyppy.arguments.fill_arguments import fill_arguments
-from pyppy.conditions.conditions import condition, s_
+from pyppy.conditions.conditions import condition, exp
 from pyppy.config.get_config import initialize_config
 from pyppy.config.get_container import container
 from pyppy.pipeline.pipeline import step, Pipeline
@@ -52,7 +52,7 @@ def create_data_frame(debug):
 # --- 5: pipeline step based on condition
 #        from config
 @step("df_proc", "add_rows")
-@condition(s_(add_synthetic_rows=True))
+@condition(exp(add_synthetic_rows=True))
 @fill_arguments
 def add_rows(df):
     df2 = pd.DataFrame([[5, 3.6, 199], [6, 8.6, 37]], columns=["col1", "col2", "col3"])

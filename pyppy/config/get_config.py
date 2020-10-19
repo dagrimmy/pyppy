@@ -1,9 +1,11 @@
+from argparse import Namespace
+
 from pyppy.utils.exc import ConfigAlreadyInitializedException
 
 _CONFIG = "confyg"
 
 
-def initialize_config(args):
+def initialize_config(args=Namespace()):
     if hasattr(config, _CONFIG):
         raise ConfigAlreadyInitializedException((
             "Config has already been initialized. "

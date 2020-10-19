@@ -72,7 +72,7 @@ def evaluate_single_condition(single_condition):
     )
 
 
-def s_(single_condition=None, container_name=None, **kwargs):
+def exp(single_condition=None, container_name=None, **kwargs):
     def condition_evaluator():
         if single_condition:
             return evaluate_single_condition(single_condition)

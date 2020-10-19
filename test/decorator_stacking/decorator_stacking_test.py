@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 from collections import OrderedDict
 
 from pyppy.arguments.fill_arguments import fill_arguments
-from pyppy.conditions.conditions import condition, s_
+from pyppy.conditions.conditions import condition, exp
 from pyppy.config.get_config import initialize_config, destroy_config
 from pyppy.pipeline.pipeline import step, Pipeline
 from test.utils.testcase import TestCase
@@ -32,13 +32,13 @@ class DecoratorStackingTest(TestCase):
         initialize_config(parser.parse_args(cli_args))
 
         @step("tmp")
-        @condition(s_(lambda c: c.command == "sub1"))
+        @condition(exp(lambda c: c.command == "sub1"))
         @fill_arguments
         def tmp1(sub1_tmp):
             return f"func1:{sub1_tmp}"
 
         @step("tmp")
-        @condition(s_(lambda c: c.command == "sub2"))
+        @condition(exp(lambda c: c.command == "sub2"))
         @fill_arguments
         def tmp2(sub2_tmp):
             return f"func1:{sub2_tmp}"

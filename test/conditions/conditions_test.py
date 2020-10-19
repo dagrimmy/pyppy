@@ -1,6 +1,6 @@
 from argparse import ArgumentParser, Namespace
 
-from pyppy.conditions.conditions import condition, s_, and_, or_
+from pyppy.conditions.conditions import condition, exp, and_, or_
 from pyppy.config.get_container import container, destroy_container
 from pyppy.utils.exc import AmbiguousConditionValuesException, ConditionRaisedException, \
     ConditionDidNotReturnBooleansException
@@ -24,7 +24,7 @@ class ConditionsTest(TestCase):
 
         initialize_config(args)
 
-        @condition(s_(lambda c: c.tmp1 == 1))
+        @condition(exp(lambda c: c.tmp1 == 1))
         def tmp():
             return "returned"
 
@@ -40,7 +40,7 @@ class ConditionsTest(TestCase):
 
         initialize_config(args)
 
-        @condition(s_(lambda c: c.tmp()))
+        @condition(exp(lambda c: c.tmp()))
         def tmp1():
             container().tmp2 = 2
             return "tmp1 returned"
@@ -64,12 +64,12 @@ class ConditionsTest(TestCase):
 
         initialize_config(args)
 
-        @condition(s_(lambda c: c.tmp1 == 1))
+        @condition(exp(lambda c: c.tmp1 == 1))
         def tmp1():
             container().tmp2 = 2
             return "tmp1 returned"
 
-        @condition(s_(lambda c: c.tmp2 == 2))
+        @condition(exp(lambda c: c.tmp2 == 2))
         def tmp2():
             return "tmp2 returned"
 
@@ -86,7 +86,7 @@ class ConditionsTest(TestCase):
         args = parser.parse_args(cli_args)
         initialize_config(args)
 
-        @condition(s_(lambda c: str(c.tmp1)))
+        @condition(exp(lambda c: str(c.tmp1)))
         def tmp1():
             container().tmp1 = 2
             return "tmp1 returned"
@@ -104,12 +104,12 @@ class ConditionsTest(TestCase):
 
         initialize_config(args)
 
-        @condition(s_(lambda c: c.tmp1 == 1))
+        @condition(exp(lambda c: c.tmp1 == 1))
         def tmp1():
             container().tmp1 = 2
             return "tmp1 returned"
 
-        @condition(s_(lambda c: c.tmp1 == 1))
+        @condition(exp(lambda c: c.tmp1 == 1))
         def tmp2():
             return "tmp2 returned"
 
@@ -127,7 +127,7 @@ class ConditionsTest(TestCase):
 
         initialize_config(args)
 
-        @condition(s_(lambda c: c.tmp1 == 2))
+        @condition(exp(lambda c: c.tmp1 == 2))
         def tmp():
             return "returned"
 
@@ -150,7 +150,7 @@ class ConditionsTest(TestCase):
 
         args = parser.parse_args(cli_args)
 
-        @condition(s_(lambda c: c.tmp1 == 1))
+        @condition(exp(lambda c: c.tmp1 == 1))
         def tmp():
             return "returned"
 
@@ -175,8 +175,8 @@ class ConditionsTest(TestCase):
         # raise when sub command check comes second
         @condition(
             and_(
-                s_(lambda c: c.sub2_tmp == 2),
-                s_(lambda c: c.command == "sub2")
+                exp(lambda c: c.sub2_tmp == 2),
+                exp(lambda c: c.command == "sub2")
             )
         )
         def tmp1():
@@ -195,8 +195,8 @@ class ConditionsTest(TestCase):
         # don't raise when sub command check comes first
         @condition(
             and_(
-                s_(lambda c: c.command == "sub2"),
-                s_(lambda c: c.sub2_tmp == 2)
+                exp(lambda c: c.command == "sub2"),
+                exp(lambda c: c.sub2_tmp == 2)
             )
         )
         def tmp2():
@@ -210,8 +210,8 @@ class ConditionsTest(TestCase):
         # return
         @condition(
             and_(
-                s_(lambda c: c.command == "sub1"),
-                s_(lambda c: c.sub1_tmp == 1)
+                exp(lambda c: c.command == "sub1"),
+                exp(lambda c: c.sub1_tmp == 1)
             )
         )
         def tmp3():
@@ -220,7 +220,7 @@ class ConditionsTest(TestCase):
         self.assertEqual(tmp3(), "returned")
 
     def test_single_exp(self):
-        @condition(s_(a="b"))
+        @condition(exp(a="b"))
         def tmp():
             return "returned"
 
@@ -236,10 +236,10 @@ class ConditionsTest(TestCase):
     def test_nested_exp_1(self):
         exp = and_(
             or_(
-                s_(a="b"),
-                s_(b="c")
+                exp(a="b"),
+                exp(b="c")
             ),
-            s_(d="e")
+            exp(d="e")
         )
 
         @condition(exp)
@@ -255,10 +255,10 @@ class ConditionsTest(TestCase):
     def test_nested_exp_2(self):
         exp = and_(
             or_(
-                s_(a="b"),
-                s_(b="c")
+                exp(a="b"),
+                exp(b="c")
             ),
-            s_(d="e")
+            exp(d="e")
         )
 
         @condition(exp)
@@ -274,10 +274,10 @@ class ConditionsTest(TestCase):
     def test_nested_exp_3(self):
         exp = and_(
             or_(
-                s_(a="b"),
-                s_(b="c")
+                exp(a="b"),
+                exp(b="c")
             ),
-            s_(d="e")
+            exp(d="e")
         )
 
         @condition(exp)
@@ -294,10 +294,10 @@ class ConditionsTest(TestCase):
     def test_nested_exp_4(self):
         exp = and_(
             or_(
-                s_(a="b"),
-                s_(b="c")
+                exp(a="b"),
+                exp(b="c")
             ),
-            s_(d="e")
+            exp(d="e")
         )
 
         @condition(exp)
@@ -316,8 +316,8 @@ class ConditionsTest(TestCase):
         conf.a = "b"
 
         exp = or_(
-            s_(a="b"),
-            s_(b="c")
+            exp(a="b"),
+            exp(b="c")
         )
 
         self.assertTrue(exp())

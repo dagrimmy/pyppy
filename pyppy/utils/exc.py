@@ -28,3 +28,7 @@ class ConditionDidNotReturnBooleansException(Exception):
 
 class ConflictingArgumentValuesException(Exception):
     pass
+
+
+class FunctionSignatureNotSupportedException(Exception):
+    pass

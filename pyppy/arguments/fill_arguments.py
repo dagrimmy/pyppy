@@ -4,66 +4,74 @@ from inspect import signature
 from pyppy.config.get_config import config
 from pyppy.config.get_container import container
 from pyppy.utils.constants import UNSET_VALUE
-from pyppy.utils.exc import MissingConfigParamException, ConflictingArgumentValuesException
+from pyppy.utils.exc import MissingConfigParamException, ConflictingArgumentValuesException, \
+    FunctionSignatureNotSupportedException
 
 
-def get_function_params(function):
-    sig = signature(function)
+def _get_value(param_name, obj):
+    val = UNSET_VALUE
+    if hasattr(obj, param_name):
+        val = getattr(obj, param_name)
 
-    out = []
-
-    for name, param in sig.parameters.items():
-        if param.default is param.empty:
-            value = None
-        else:
-            value = param.default
-
-        out.append((name, value))
-
-    return out
+    return val
 
 
-def fill_function_parameters(params):
-    new_params = {}
-    for param in params:
-        name, val = param
-        conf_val = UNSET_VALUE
-        if name in config():
-            conf_val = getattr(config(), name)
+def _get_value_from_config_or_container(param_name):
+    config_val = _get_value(param_name, config())
+    container_val = _get_value(param_name, container())
 
-        cont_val = UNSET_VALUE
-        if hasattr(container(), name):
-            cont_val = getattr(container(), name)
+    if config_val is UNSET_VALUE and container_val is UNSET_VALUE:
+        raise MissingConfigParamException(
+            f"Param {param_name} not found in config or container!"
+        )
 
-        if conf_val is UNSET_VALUE and cont_val is UNSET_VALUE:
-            raise MissingConfigParamException(
-                f"Param {name} not found in config or container!"
+    if config_val is not UNSET_VALUE and container_val is not UNSET_VALUE:
+        if container_val is not config_val:
+            raise ConflictingArgumentValuesException(
+                (f"Found param with name {param_name} in config and "
+                 f"container with conflicting values!")
             )
 
-        if conf_val is not UNSET_VALUE and cont_val is not UNSET_VALUE:
-            if cont_val is not conf_val:
-                raise ConflictingArgumentValuesException(
-                    (f"Found param with name {name} in config and "
-                     f"container with conflicting values!")
-                )
+    if container_val is not UNSET_VALUE:
+        val = container_val
 
-        if cont_val is not UNSET_VALUE:
-            val = cont_val
+    if config_val is not UNSET_VALUE:
+        val = config_val
 
-        if conf_val is not UNSET_VALUE:
-            val = conf_val
-
-        new_params[name] = val
-
-    return new_params
+    return val
 
 
-def fill_arguments(func):
-    params = get_function_params(func)
+def _check_function_signature_supported(func):
+    sig = signature(func)
 
-    @functools.wraps(func)
-    def argument_filler():
-        new_params = fill_function_parameters(params)
-        return func(**new_params)
+    for name, param in sig.parameters.items():
+        if param.kind in (param.POSITIONAL_ONLY,
+                          param.VAR_KEYWORD,
+                          param.VAR_POSITIONAL):
+            raise FunctionSignatureNotSupportedException(
+                f"Currently only functions with arguments that have types "
+                f"of POSITIONAL_OR_KEYWORD and KEYWORD_ONLY are supported."
+            )
 
-    return argument_filler
+
+def fill_arguments(*arguments_to_be_filled):
+
+    def fill_arguments_decorator(func):
+        _check_function_signature_supported(func)
+
+        sig = signature(func)
+
+        filled_kwargs = {}
+
+        for name, param in sig.parameters.items():
+            if name in arguments_to_be_filled or len(arguments_to_be_filled) == 0:
+                value = _get_value_from_config_or_container(name)
+                filled_kwargs[name] = value
+
+        @functools.wraps(func)
+        def argument_filler(**kwargs):
+            filled_kwargs.update(kwargs)
+            return func(**filled_kwargs)
+
+        return argument_filler
+    return fill_arguments_decorator
