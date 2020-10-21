@@ -1,18 +1,55 @@
-from collections import namedtuple
+from contextlib import contextmanager
+from argparse import Namespace
+from typing import List, Tuple
+
+from pyppy.config.get_config import destroy_config, initialize_config
+from pyppy.config.get_container import destroy_container, container
 
 
-class Namespace:
+def _fake_config(fake_args: List[Tuple]):
+    destroy_config()
 
-    def __init__(self):
-        pass
-
-
-def get_fake_argparse_namespace(key_value_pairs):
     namespace = Namespace()
+    for arg in fake_args:
+        setattr(namespace, arg[0], arg[1])
 
-    for key_value_pair in key_value_pairs:
-        if len(key_value_pair) != 2:
-            raise Exception("Key value pairs not valid")
-        setattr(namespace, key_value_pair[0], key_value_pair[1])
+    initialize_config(namespace)
 
-    return namespace
+
+@contextmanager
+def fake_config(fake_args: List[Tuple]):
+    _fake_config(fake_args)
+
+    try:
+        yield
+    finally:
+        destroy_config()
+
+
+def _fake_container(fake_args):
+    destroy_container(destroy_all=True)
+
+    for arg in fake_args:
+        setattr(container(), arg[0], arg[1])
+
+
+@contextmanager
+def fake_container(fake_args: List[Tuple]):
+    _fake_container(fake_args)
+
+    try:
+        yield
+    finally:
+        destroy_container(destroy_all=True)
+
+
+@contextmanager
+def fake_container_and_config(container_fake_args, config_fake_args):
+    _fake_container(container_fake_args)
+    _fake_config(config_fake_args)
+
+    try:
+        yield
+    finally:
+        destroy_container(destroy_all=True)
+        destroy_config()

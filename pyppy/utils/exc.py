@@ -32,3 +32,8 @@ class ConflictingArgumentValuesException(Exception):
 
 class FunctionSignatureNotSupportedException(Exception):
     pass
+
+
+class OnlyKeywordArgumentsAllowedException(Exception):
+    pass
+

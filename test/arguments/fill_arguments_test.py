@@ -1,109 +1,172 @@
-from argparse import ArgumentParser
-
 from pyppy.arguments.fill_arguments import fill_arguments
-from pyppy.config.get_config import initialize_config, destroy_config
-from pyppy.config.get_container import container, destroy_container
-from pyppy.utils.exc import FunctionSignatureNotSupportedException
+from pyppy.utils.exc import FunctionSignatureNotSupportedException, OnlyKeywordArgumentsAllowedException
 from test.utils.testcase import TestCase
+from test.utils.testing import fake_config
+
+
+DEFAULT_ARG_SET = [
+    ("arg1", "val1"),
+    ("arg2", "val2"),
+    ("arg3", "val3"),
+    ("arg4", "val4"),
+]
+DEFAULT_ARG_DICT = dict(DEFAULT_ARG_SET)
+
+MIXED_TYPE_ARG_SET = [
+    ("arg1", "1"),
+    ("arg2", 2),
+    ("arg3", (3,)),
+    ("arg4", {4: 4}),
+]
+MIXED_TYPE_ARG_DICT = dict(DEFAULT_ARG_SET)
 
 
 class FillArgumentsTest(TestCase):
 
-    def setUp(self) -> None:
-        destroy_container()
-        destroy_config()
+    def test_fill_one_arg(self):
+        with fake_config(DEFAULT_ARG_SET):
+            @fill_arguments()
+            def tmp(arg1):
+                return arg1
 
-    def test_fill_arguments(self):
-        parser = ArgumentParser()
-        parser.add_argument("--a", default="a_")
-        parser.add_argument("--b", default="bbb")
-        parser.add_argument("--c", default="c_")
-        parser.add_argument("--d", default="ddd")
-        args = parser.parse_args(["--a", "aaa",
-                                  "--c", "ccc"])
-        initialize_config(args)
+            self.assertEqual(tmp(), DEFAULT_ARG_DICT['arg1'])
 
-        @fill_arguments()
-        def tmp1(a, b):
-            return f"func:{a}:{b}"
-
-        @fill_arguments()
-        def tmp2(c, d):
-            return f"func:{c}:{d}"
-
-        self.assertEqual(tmp1(), "func:aaa:bbb")
-        self.assertEqual(tmp2(), "func:ccc:ddd")
+        self.assertEqual(tmp(), DEFAULT_ARG_DICT['arg1'])
 
     def test_fill_two_args(self):
-        initialize_config()
-        cont = container()
-        cont.arg1 = "val1"
-        cont.arg2 = "val2"
-        cont.arg3 = "val3"
-        cont.arg4 = "val4"
+        with fake_config(DEFAULT_ARG_SET):
+            @fill_arguments()
+            def tmp(arg1, arg2):
+                return arg1, arg2
 
-        @fill_arguments()
-        def tmp1(arg1, arg2):
-            return f"func:{arg1}:{arg2}"
+            self.assertEqual(tmp(), (DEFAULT_ARG_DICT['arg1'],
+                                     DEFAULT_ARG_DICT['arg2']))
 
-        self.assertEqual(tmp1(), "func:val1:val2")
+    def test_fill_outer_args(self):
+        with fake_config(DEFAULT_ARG_SET):
+            @fill_arguments("arg1", "arg3")
+            def tmp(arg1, arg2, arg3):
+                return arg1, arg2, arg3
+
+            self.assertEqual(
+                tmp(arg2=DEFAULT_ARG_DICT['arg2']),
+                (DEFAULT_ARG_DICT['arg1'],
+                 DEFAULT_ARG_DICT['arg2'],
+                 DEFAULT_ARG_DICT['arg3']))
+
+    def test_fill_nonexistent_config_param(self):
+        with fake_config(DEFAULT_ARG_SET):
+            @fill_arguments()
+            def tmp(arg1, tmp_arg, arg3):
+                return arg1, tmp_arg, arg3
+
+            self.assertEqual(
+                tmp(tmp_arg=DEFAULT_ARG_DICT['arg2']),
+                (DEFAULT_ARG_DICT['arg1'],
+                 DEFAULT_ARG_DICT['arg2'],
+                 DEFAULT_ARG_DICT['arg3']))
 
     def test_fill_positional_arg(self):
-        initialize_config()
-        cont = container()
-        cont.arg1 = "val1"
-        cont.arg2 = "val2"
-        cont.arg3 = "val3"
-        cont.arg4 = "val4"
-
-        @fill_arguments("arg3")
-        def tmp2(arg3, arg4="blabla"):
-            return f"func:{arg3}:{arg4}"
-        self.assertEqual(tmp2(), "func:val3:blabla")
-        self.assertEqual("func:val3:cool", tmp2(arg4="cool"))
+        with fake_config(DEFAULT_ARG_SET):
+            @fill_arguments("arg3")
+            def tmp2(arg3, arg4="blabla"):
+                return arg3, arg4
+            self.assertEqual(tmp2(), (
+                DEFAULT_ARG_DICT['arg3'],
+                "blabla"
+            ))
+            self.assertEqual(tmp2(arg4="cool"), (
+                DEFAULT_ARG_DICT['arg3'],
+                "cool"
+            ))
 
     def test_fill_keyword_arg(self):
-        initialize_config()
-        cont = container()
-        cont.arg1 = "val1"
-        cont.arg2 = "val2"
-        cont.arg3 = "val3"
-        cont.arg4 = "val4"
+        with fake_config(DEFAULT_ARG_SET):
+            @fill_arguments("arg4")
+            def tmp3(arg3, arg4="blabla"):
+                return arg3, arg4
 
-        @fill_arguments("arg4")
-        def tmp3(arg3, arg4="blabla"):
-            return f"func:{arg3}:{arg4}"
-
-        self.assertEqual("func:cool:val4", tmp3(arg3="cool"))
+            self.assertEqual(tmp3(arg3="cool"), (
+                "cool",
+                DEFAULT_ARG_DICT['arg4']
+            ))
 
     def test_fill_keyword_arg_2(self):
-        initialize_config()
-        cont = container()
-        cont.arg1 = "val1"
-        cont.arg2 = "val2"
-        cont.arg3 = "val3"
-        cont.arg4 = "val4"
+        with fake_config(DEFAULT_ARG_SET):
+            @fill_arguments("arg4")
+            def tmp4(arg3="tmp", arg4="blabla"):
+                return arg3, arg4
 
-        @fill_arguments("arg4")
-        def tmp4(arg3="tmp", arg4="blabla"):
-            return f"func:{arg3}:{arg4}"
+            self.assertEqual(tmp4(arg3="cool"), (
+                "cool",
+                "val4"
+            ))
 
-        self.assertEqual("func:cool:val4", tmp4(arg3="cool"))
+    def test_fill_correct_types(self):
+        with fake_config(MIXED_TYPE_ARG_SET):
+            @fill_arguments()
+            def tmp(arg1, arg2, arg3, arg4):
+                return arg1, arg2, arg3, arg4
+
+            result = tmp()
+            self.assertIsInstance(result[0], str)
+            self.assertIsInstance(result[1], int)
+            self.assertIsInstance(result[2], tuple)
+            self.assertIsInstance(result[3], dict)
+
+    def test_overwrite_defaults(self):
+        with fake_config(DEFAULT_ARG_SET):
+            @fill_arguments()
+            def tmp(arg1="tmp1", arg2="tmp2", arg3="tmp3", arg4="tmp4"):
+                return arg1, arg2, arg3, arg4
+
+            self.assertEqual(tmp(), (
+                DEFAULT_ARG_DICT['arg1'],
+                DEFAULT_ARG_DICT['arg2'],
+                DEFAULT_ARG_DICT['arg3'],
+                DEFAULT_ARG_DICT['arg4']
+            ))
+
+    def test_positional_args_raise(self):
+        with fake_config(DEFAULT_ARG_SET):
+            @fill_arguments()
+            def tmp(arg1, arg2="tmp"):
+                return arg1, arg2
+
+            with self.assertRaises(
+                OnlyKeywordArgumentsAllowedException
+            ):
+                tmp("tmp")
+
+    def test_overwrite_filled_arguments(self):
+        with fake_config(DEFAULT_ARG_SET):
+            @fill_arguments()
+            def tmp(arg1="tmp1", arg2="tmp2", arg3="tmp3", arg4="tmp4"):
+                return arg1, arg2, arg3, arg4
+
+            self.assertEqual(tmp(
+                arg1="hurz1", arg2="hurz2", arg3="hurz3", arg4="hurz4"
+            ), (
+                "hurz1", "hurz2", "hurz3", "hurz4"
+            ))
 
     def test_raise_positional_only_args(self):
-        with self.assertRaises(FunctionSignatureNotSupportedException):
-            @fill_arguments("arg3", "arg4")
-            def tmp4(x, y, /, arg3, arg4="blabla"):
-                return f"func:{x}:{y}:{arg3}:{arg4}"
+        with fake_config(DEFAULT_ARG_SET):
+            with self.assertRaises(FunctionSignatureNotSupportedException):
+                @fill_arguments("arg3", "arg4")
+                def tmp4(x, y, /, arg3, arg4="blabla"):
+                    return x, y, arg3, arg4
 
     def test_raise_keyword_only(self):
-        with self.assertRaises(FunctionSignatureNotSupportedException):
-            @fill_arguments()
-            def tmp4(arg1, *args, arg4="blabla"):
-                return f"func:{arg1}:{args}:{arg4}"
+        with fake_config(DEFAULT_ARG_SET):
+            with self.assertRaises(FunctionSignatureNotSupportedException):
+                @fill_arguments()
+                def tmp4(arg1, *args, arg4="blabla"):
+                    return arg1, args, arg4
 
     def test_raise_var_keyword(self):
-        with self.assertRaises(FunctionSignatureNotSupportedException):
-            @fill_arguments()
-            def tmp4(arg1, **kwargs):
-                return f"func:{arg1}:{kwargs}"
+        with fake_config(DEFAULT_ARG_SET):
+            with self.assertRaises(FunctionSignatureNotSupportedException):
+                @fill_arguments()
+                def tmp4(arg1, **kwargs):
+                    return arg1, kwargs

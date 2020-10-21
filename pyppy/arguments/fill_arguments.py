@@ -5,7 +5,7 @@ from pyppy.config.get_config import config
 from pyppy.config.get_container import container
 from pyppy.utils.constants import UNSET_VALUE
 from pyppy.utils.exc import MissingConfigParamException, ConflictingArgumentValuesException, \
-    FunctionSignatureNotSupportedException
+    FunctionSignatureNotSupportedException, OnlyKeywordArgumentsAllowedException
 
 
 def _get_value(param_name, obj):
@@ -21,9 +21,7 @@ def _get_value_from_config_or_container(param_name):
     container_val = _get_value(param_name, container())
 
     if config_val is UNSET_VALUE and container_val is UNSET_VALUE:
-        raise MissingConfigParamException(
-            f"Param {param_name} not found in config or container!"
-        )
+        return
 
     if config_val is not UNSET_VALUE and container_val is not UNSET_VALUE:
         if container_val is not config_val:
@@ -58,9 +56,7 @@ def fill_arguments(*arguments_to_be_filled):
 
     def fill_arguments_decorator(func):
         _check_function_signature_supported(func)
-
         sig = signature(func)
-
         filled_kwargs = {}
 
         for name, param in sig.parameters.items():
@@ -69,7 +65,14 @@ def fill_arguments(*arguments_to_be_filled):
                 filled_kwargs[name] = value
 
         @functools.wraps(func)
-        def argument_filler(**kwargs):
+        def argument_filler(*args, **kwargs):
+            if len(args) > 0:
+                raise OnlyKeywordArgumentsAllowedException(
+                    ("Only keyword arguments are allowed when executing a "
+                    f"function defined with the {fill_arguments.__name__} "
+                    "decorator.")
+                )
+
             filled_kwargs.update(kwargs)
             return func(**filled_kwargs)
 
