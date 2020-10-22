@@ -37,3 +37,6 @@ class FunctionSignatureNotSupportedException(Exception):
 class OnlyKeywordArgumentsAllowedException(Exception):
     pass
 
+
+class IllegalStateException(Exception):
+    pass

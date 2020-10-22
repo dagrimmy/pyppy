@@ -1,8 +1,10 @@
 from pyppy.arguments.fill_arguments import fill_arguments
-from pyppy.utils.exc import FunctionSignatureNotSupportedException, OnlyKeywordArgumentsAllowedException
+from pyppy.config.get_config import destroy_config, initialize_config
+from pyppy.config.get_container import destroy_container, container
+from pyppy.utils.exc import FunctionSignatureNotSupportedException, OnlyKeywordArgumentsAllowedException, \
+    ConflictingArgumentValuesException, IllegalStateException
 from test.utils.testcase import TestCase
-from test.utils.testing import fake_config
-
+from test.utils.testing import fake_config, fake_container, fake_container_and_config
 
 DEFAULT_ARG_SET = [
     ("arg1", "val1"),
@@ -20,8 +22,20 @@ MIXED_TYPE_ARG_SET = [
 ]
 MIXED_TYPE_ARG_DICT = dict(DEFAULT_ARG_SET)
 
+DEFAULT_CONT_SET = [
+    ("cont1", "cval1"),
+    ("cont2", "cval2"),
+    ("cont3", "cval3"),
+    ("cont4", "cval4"),
+]
+DEFAULT_CONT_DICT = dict(DEFAULT_CONT_SET)
+
 
 class FillArgumentsTest(TestCase):
+
+    def setUp(self) -> None:
+        destroy_config()
+        destroy_container()
 
     def test_fill_one_arg(self):
         with fake_config(DEFAULT_ARG_SET):
@@ -170,3 +184,68 @@ class FillArgumentsTest(TestCase):
                 @fill_arguments()
                 def tmp4(arg1, **kwargs):
                     return arg1, kwargs
+
+    def test_fill_arguments_from_container(self):
+        with fake_container(DEFAULT_ARG_SET):
+            initialize_config()
+
+            @fill_arguments()
+            def tmp(arg1, arg2, arg3, arg4):
+                return arg1, arg2, arg3, arg4
+
+            self.assertEqual(tmp(), (
+                DEFAULT_ARG_DICT['arg1'],
+                DEFAULT_ARG_DICT['arg2'],
+                DEFAULT_ARG_DICT['arg3'],
+                DEFAULT_ARG_DICT['arg4']
+            ))
+
+    def test_fill_arguments_from_container_and_config(self):
+        with fake_container_and_config(DEFAULT_CONT_SET,
+                                       DEFAULT_ARG_SET):
+
+            @fill_arguments()
+            def tmp(arg1, cont2, arg3, cont4):
+                return arg1, cont2, arg3, cont4
+
+            self.assertEqual(tmp(), (
+                DEFAULT_ARG_DICT['arg1'],
+                DEFAULT_CONT_DICT['cont2'],
+                DEFAULT_ARG_DICT['arg3'],
+                DEFAULT_CONT_DICT['cont4']
+            ))
+
+    def test_conflicting_container_and_config_values(self):
+        with fake_container_and_config(
+            [("arg1", "different_than_config")],
+            DEFAULT_ARG_SET
+        ):
+
+            with self.assertRaises(ConflictingArgumentValuesException):
+                @fill_arguments()
+                def tmp(arg1, cont2, arg3, cont4):
+                    return arg1, cont2, arg3, cont4
+
+    def test_conflicting_container_and_config_values_different_types(self):
+        with fake_container_and_config(
+            [("arg1", "1")],
+            [("arg1", 1)]
+        ):
+
+            with self.assertRaises(ConflictingArgumentValuesException):
+                @fill_arguments()
+                def tmp(arg1, cont2, arg3, cont4):
+                    return arg1, cont2, arg3, cont4
+
+    def test_non_found_arguments(self):
+        with fake_container_and_config(
+            DEFAULT_CONT_SET,
+            DEFAULT_ARG_SET
+        ):
+
+            @fill_arguments()
+            def tmp(arg_is_not_in_config_and_container):
+                return arg_is_not_in_config_and_container
+
+            with self.assertRaises(IllegalStateException):
+                tmp()

@@ -1,4 +1,4 @@
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 
 from pyppy.config.get_config import initialize_config, config, destroy_config
 from pyppy.utils.exc import ConfigAlreadyInitializedException
@@ -11,42 +11,30 @@ class ContainerTest(TestCase):
         destroy_config()
 
     def test_config(self):
-        # parse and initialize
-        parser = ArgumentParser()
-        parser.add_argument("--tmp1", type=str)
-        parser.add_argument("--tmp2", type=int)
+        namespace = Namespace()
+        namespace.tmp1 = "val1"
+        namespace.tmp2 = 2
 
-        cli_args = ["--tmp1", "val1", "--tmp2", "2"]
-
-        args = parser.parse_args(cli_args)
-
-        initialize_config(args)
+        initialize_config(namespace)
         conf = config()
 
         self.assertEqual(conf.tmp1, "val1")
         self.assertEqual(conf.tmp2, 2)
 
-        # new initialize should raise and
-        # not overwrite previous config
-        parser2 = ArgumentParser()
-        parser2.add_argument("--tmp3", type=str)
-        parser2.add_argument("--tmp4", type=int)
-
-        cli_args2 = ["--tmp3", "val3", "--tmp4", "4"]
-        args2 = parser2.parse_args(cli_args2)
+    def test_config_already_initialized(self):
+        namespace = Namespace()
+        namespace.tmp = "tmp"
+        initialize_config(namespace)
 
         with self.assertRaises(ConfigAlreadyInitializedException):
-            initialize_config(args2)
+            initialize_config(Namespace())
 
-        self.assertEqual(conf, config())
+        self.assertEqual(namespace, config())
 
+    def test_destroy_config(self):
         with self.assertRaises(AttributeError):
-            config().tmp3
+            config().tmp
 
-        with self.assertRaises(AttributeError):
-            config().tmp4
-
-        # destroy config should allow new initialize
         destroy_config()
 
         parser2 = ArgumentParser()

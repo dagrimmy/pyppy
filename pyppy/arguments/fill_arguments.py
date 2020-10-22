@@ -5,7 +5,7 @@ from pyppy.config.get_config import config
 from pyppy.config.get_container import container
 from pyppy.utils.constants import UNSET_VALUE
 from pyppy.utils.exc import MissingConfigParamException, ConflictingArgumentValuesException, \
-    FunctionSignatureNotSupportedException, OnlyKeywordArgumentsAllowedException
+    FunctionSignatureNotSupportedException, OnlyKeywordArgumentsAllowedException, IllegalStateException
 
 
 def _get_value(param_name, obj):
@@ -21,7 +21,7 @@ def _get_value_from_config_or_container(param_name):
     container_val = _get_value(param_name, container())
 
     if config_val is UNSET_VALUE and container_val is UNSET_VALUE:
-        return
+        return UNSET_VALUE
 
     if config_val is not UNSET_VALUE and container_val is not UNSET_VALUE:
         if container_val is not config_val:
@@ -68,12 +68,23 @@ def fill_arguments(*arguments_to_be_filled):
         def argument_filler(*args, **kwargs):
             if len(args) > 0:
                 raise OnlyKeywordArgumentsAllowedException(
-                    ("Only keyword arguments are allowed when executing a "
-                    f"function defined with the {fill_arguments.__name__} "
-                    "decorator.")
+                    (f"Only keyword arguments are allowed when executing a "
+                     f"function defined with the {fill_arguments.__name__} "
+                     f"decorator.")
                 )
 
             filled_kwargs.update(kwargs)
+
+            for name, value in filled_kwargs.items():
+                if value == UNSET_VALUE:
+                    raise IllegalStateException(
+                        f"\n\tArgument {name} was not filled from context \n\t"
+                        f"(container, config) and was not provided when \n\t"
+                        f"the function {func} was executed. Please make sure \n\t"
+                        f"needed arguments are either provided within the context "
+                        f"or when running a 'fill_arguments'-decorated function."
+                    )
+
             return func(**filled_kwargs)
 
         return argument_filler

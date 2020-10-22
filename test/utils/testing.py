@@ -27,7 +27,7 @@ def fake_config(fake_args: List[Tuple]):
 
 
 def _fake_container(fake_args):
-    destroy_container(destroy_all=True)
+    destroy_container()
 
     for arg in fake_args:
         setattr(container(), arg[0], arg[1])
@@ -40,7 +40,7 @@ def fake_container(fake_args: List[Tuple]):
     try:
         yield
     finally:
-        destroy_container(destroy_all=True)
+        destroy_container()
 
 
 @contextmanager
@@ -51,5 +51,14 @@ def fake_container_and_config(container_fake_args, config_fake_args):
     try:
         yield
     finally:
-        destroy_container(destroy_all=True)
+        destroy_container()
+        destroy_config()
+
+
+@contextmanager
+def container_config_cleanup():
+    try:
+        yield
+    finally:
+        destroy_container()
         destroy_config()

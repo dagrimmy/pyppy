@@ -1,68 +1,48 @@
-from pyppy.config.get_container import container, destroy_container
+from pyppy.config.get_container import container, destroy_container, _CONTAINER
 from test.utils.testcase import TestCase
+from test.utils.testing import container_config_cleanup
 
 
 class ContainerTest(TestCase):
 
-    def setUp(self) -> None:
-        destroy_container(destroy_all=True)
+    def test_container(self):
+        with container_config_cleanup():
+            cont = container()
+            cont.tmp1 = "tmp1"
+            cont.tmp2 = "tmp2"
+            self.assertEqual(container().tmp1, "tmp1")
+            self.assertEqual(container().tmp2, "tmp2")
 
-    def test_global_container(self):
+            destroy_container()
+
+            with self.assertRaises(AttributeError):
+                container().tmp1
+
+            with self.assertRaises(AttributeError):
+                container().tmp2
+
+    def test_initialize_after_destroy(self):
         cont = container()
-        cont.tmp1 = "tmp1"
-        cont.tmp2 = "tmp2"
-        self.assertEqual(container().tmp1, "tmp1")
-        self.assertEqual(container().tmp2, "tmp2")
-
+        cont.tmp = "tmp"
         destroy_container()
 
-        with self.assertRaises(AttributeError):
-            container().tmp1
+        cont = container()
 
         with self.assertRaises(AttributeError):
-            container().tmp2
+            cont.tmp1
 
-    def test_container_with_name(self):
-        cont = container("test")
-        cont.tmp1 = "tmp1"
-        cont.tmp2 = "tmp2"
-        self.assertEqual(container("test").tmp1, "tmp1")
-        self.assertEqual(container("test").tmp2, "tmp2")
-
-        destroy_container("test")
+    def test_delattr(self):
+        cont = container()
+        cont.tmp = "tmp"
+        delattr(cont, "tmp")
 
         with self.assertRaises(AttributeError):
-            container("test").tmp1
+            cont.tmp
 
-        with self.assertRaises(AttributeError):
-            container("test").tmp2
-
-    def test_container_dont_interfere(self):
-        cont = container("test1")
-        cont.tmp1 = "tmp1"
-        cont.tmp2 = "tmp2"
-        self.assertEqual(container("test1").tmp1, "tmp1")
-        self.assertEqual(container("test1").tmp2, "tmp2")
-
-        cont = container("test2")
-        cont.tmp1 = "tmp11"
-        cont.tmp2 = "tmp22"
-        self.assertEqual(container("test2").tmp1, "tmp11")
-        self.assertEqual(container("test2").tmp2, "tmp22")
-        self.assertEqual(container("test1").tmp1, "tmp1")
-        self.assertEqual(container("test1").tmp2, "tmp2")
-
-        destroy_container("test1")
-
-        self.assertEqual(container("test2").tmp1, "tmp11")
-        self.assertEqual(container("test2").tmp2, "tmp22")
-
-        with self.assertRaises(AttributeError):
-            container("test1").tmp1
-
-        with self.assertRaises(AttributeError):
-            container("test1").tmp2
-
-    def test_no_raise_when_container_not_there(self):
-        with self.assertNotRaises(AttributeError):
-            destroy_container("asdjfklasjdöcjkslödj")
+    def test_delete_container(self):
+        container()
+        self.assertTrue(hasattr(container, _CONTAINER))
+        container().tmp = "tmp"
+        self.assertTrue(hasattr(container(), "tmp"))
+        destroy_container()
+        self.assertFalse(hasattr(container, _CONTAINER))

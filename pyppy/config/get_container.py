@@ -7,39 +7,21 @@ class Container:
         pass
 
     def __str__(self):
-        output = ""
-        for _, var in vars(self).items():
-            output += str(var)
-        return output
+        output = []
+        output.append("Container:")
+        for name, val in vars(self).items():
+            output.append(f"{name}: {val}")
+        return "\n\t3".join(output)
 
 
-def destroy_container(container_name=None, destroy_all=False):
-    if destroy_all:
-        keys = list(container.__dict__.keys())
-        for key in keys:
-            container.__dict__.pop(key)
-
-    def _destroy(name):
-        if not hasattr(container, name):
-            return
-        delattr(container, name)
-
-    if not container_name:
-        _destroy(_CONTAINER)
-    else:
-        _destroy(container_name)
+def destroy_container():
+    if not hasattr(container, _CONTAINER):
+        return
+    delattr(container, _CONTAINER)
 
 
-def container(container_name=None):
+def container():
+    if not hasattr(container, _CONTAINER):
+        setattr(container, _CONTAINER, Container())
 
-    def _get_container(name):
-        if not hasattr(container, name):
-            setattr(container, name, Container())
-
-        return getattr(container, name)
-
-    if not container_name:
-        return _get_container(_CONTAINER)
-    else:
-        return _get_container(container_name)
-
+    return getattr(container, _CONTAINER)

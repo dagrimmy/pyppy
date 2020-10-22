@@ -18,8 +18,9 @@ Here is an example of what *pyppy* can do for you:
 
 
 ## possible enhancements
-* Debug option for container
+* debug option for container
     * Container logs every action done on it 
+* possibility to add container with a name 
 
 ## known bugs
 * fill_arguments decorator won't work with non-global containers (containers that
@@ -33,3 +34,4 @@ are expected to avoid wrong checks
 * possibility to specify arguments for pipeline steps that must be filled in runtime
 (add args after pipeline has been created)
     * imagine different pipeline runs with one arg changing 
+* Improve exception string printing (line breaks)
