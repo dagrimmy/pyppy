@@ -86,7 +86,7 @@ def exp(single_condition=None, container_name=None, **kwargs):
         if not hasattr(config(), k):
             return False
 
-        if getattr(config(), k) == v:
+        if getattr(config(), k) is v:
             return True
         else:
             return False

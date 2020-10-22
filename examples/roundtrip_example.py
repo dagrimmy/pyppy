@@ -30,7 +30,7 @@ initialize_config(args)
 # --- 4: create pipeline step and fill
 #        method arguments from config
 @step("df_proc", "create_df")
-@fill_arguments
+@fill_arguments()
 def create_data_frame(debug):
     data = StringIO(
         """col1;col2;col3
@@ -53,7 +53,7 @@ def create_data_frame(debug):
 #        from config
 @step("df_proc", "add_rows")
 @condition(exp(add_synthetic_rows=True))
-@fill_arguments
+@fill_arguments()
 def add_rows(df):
     df2 = pd.DataFrame([[5, 3.6, 199], [6, 8.6, 37]], columns=["col1", "col2", "col3"])
     df2 = df.append(df2)

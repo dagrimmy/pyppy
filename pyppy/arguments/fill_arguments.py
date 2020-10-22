@@ -76,7 +76,7 @@ def fill_arguments(*arguments_to_be_filled):
             filled_kwargs.update(kwargs)
 
             for name, value in filled_kwargs.items():
-                if value == UNSET_VALUE:
+                if value is UNSET_VALUE:
                     raise IllegalStateException(
                         f"\n\tArgument {name} was not filled from context \n\t"
                         f"(container, config) and was not provided when \n\t"
