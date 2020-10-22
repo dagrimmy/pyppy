@@ -94,7 +94,7 @@ class PipelineTest(TestCase):
         parser.add_argument("--b", default="b_")
 
         @step("tmp")
-        @fill_arguments
+        @fill_arguments()
         def tmp1(a, b="c"):
             return f"func1:{a}{b}"
 
@@ -110,7 +110,7 @@ class PipelineTest(TestCase):
         parser.add_argument("--b", default="b_")
 
         @step("tmp")
-        @fill_arguments
+        @fill_arguments()
         def tmp1(x, b="c"):
             return f"func1:{x}{b}"
 
@@ -126,13 +126,13 @@ class PipelineTest(TestCase):
         parser.add_argument("--b", default="b_")
 
         @step("tmp", "first")
-        @fill_arguments
+        @fill_arguments()
         def tmp1(a, b="c"):
             return f"func1:{a}{b}"
 
         @step("tmp", "second")
         @condition(exp(a="_"))
-        @fill_arguments
+        @fill_arguments()
         def tmp2():
             print("func2")
             return "func2"
@@ -150,17 +150,17 @@ class PipelineTest(TestCase):
         parser.add_argument("--b", default="b_")
 
         @step("tmp", "first")
-        @fill_arguments
+        @fill_arguments()
         def tmp1(a, b="c"):
             return f"func1:{a}{b}"
 
-        exp = and_(
+        expression = and_(
             exp(a="a_"),
             exp(b="b__")
         )
 
         @step("tmp", "second")
-        @condition(exp)
+        @condition(expression)
         def tmp2():
             print("func2")
             return "func2"

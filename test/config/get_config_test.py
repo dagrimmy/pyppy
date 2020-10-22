@@ -32,8 +32,11 @@ class ContainerTest(TestCase):
         self.assertEqual(namespace, config())
 
     def test_destroy_config(self):
+        initialize_config(Namespace())
+        conf = config()
+
         with self.assertRaises(AttributeError):
-            config().tmp
+            conf.tmp
 
         destroy_config()
 

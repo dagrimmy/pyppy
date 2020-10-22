@@ -33,13 +33,13 @@ class DecoratorStackingTest(TestCase):
 
         @step("tmp")
         @condition(exp(lambda c: c.command == "sub1"))
-        @fill_arguments
+        @fill_arguments()
         def tmp1(sub1_tmp):
             return f"func1:{sub1_tmp}"
 
         @step("tmp")
         @condition(exp(lambda c: c.command == "sub2"))
-        @fill_arguments
+        @fill_arguments()
         def tmp2(sub2_tmp):
             return f"func1:{sub2_tmp}"
 

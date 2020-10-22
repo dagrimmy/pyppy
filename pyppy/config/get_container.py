@@ -11,7 +11,7 @@ class Container:
         output.append("Container:")
         for name, val in vars(self).items():
             output.append(f"{name}: {val}")
-        return "\n\t3".join(output)
+        return "\n\t".join(output)
 
 
 def destroy_container():

@@ -59,13 +59,13 @@ def fill_arguments(*arguments_to_be_filled):
         sig = signature(func)
         filled_kwargs = {}
 
-        for name, param in sig.parameters.items():
-            if name in arguments_to_be_filled or len(arguments_to_be_filled) == 0:
-                value = _get_value_from_config_or_container(name)
-                filled_kwargs[name] = value
-
         @functools.wraps(func)
         def argument_filler(*args, **kwargs):
+            for name, param in sig.parameters.items():
+                if name in arguments_to_be_filled or len(arguments_to_be_filled) == 0:
+                    value = _get_value_from_config_or_container(name)
+                    filled_kwargs[name] = value
+
             if len(args) > 0:
                 raise OnlyKeywordArgumentsAllowedException(
                     (f"Only keyword arguments are allowed when executing a "
