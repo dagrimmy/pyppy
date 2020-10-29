@@ -72,7 +72,7 @@ def evaluate_single_condition(single_condition):
     )
 
 
-def exp(single_condition=None, container_name=None, **kwargs):
+def exp(single_condition=None, **kwargs):
     def condition_evaluator():
         if single_condition:
             return evaluate_single_condition(single_condition)
@@ -97,11 +97,14 @@ def exp(single_condition=None, container_name=None, **kwargs):
 def condition(exp):
     def condition_decorator(func):
         condition_decorator.exp = exp
+        func.exp = exp
 
         @functools.wraps(func)
         def condition_check(*args, **kwargs):
             condition_check.exp = exp
-            if condition_decorator.exp():
+            condition_result = condition_decorator.exp()
+
+            if condition_result:
                 return func(*args, **kwargs)
         return condition_check
     return condition_decorator

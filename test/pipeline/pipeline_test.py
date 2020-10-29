@@ -1,28 +1,21 @@
 import io
 import re
 import sys
-from argparse import ArgumentParser
 
-from pyppy.arguments.fill_arguments import fill_arguments
-from pyppy.conditions.conditions import condition, exp, and_
-from pyppy.config.get_config import destroy_config, initialize_config
-from pyppy.pipeline.pipeline import step, Pipeline
-from pyppy.utils.exc import MissingPipelineException, MissingConfigParamException, PipelineAlreadyExistsException
+from pyppy.pipeline.pipeline import step, Pipeline, PipelineModes
+from pyppy.utils.exc import MissingPipelineException, PipelineAlreadyExistsException
 from test.utils.testcase import TestCase
 
 
 class PipelineTest(TestCase):
 
     def setUp(self) -> None:
-        destroy_config()
         Pipeline.destroy()
 
     def tearDown(self) -> None:
-        destroy_config()
         Pipeline.destroy()
 
     def test_register_steps(self):
-
         @step("tmp")
         def tmp1():
             pass
@@ -81,96 +74,11 @@ class PipelineTest(TestCase):
 
         with self.assertRaises(MissingPipelineException):
             Pipeline.run("ahsjdhfjaklsdf")
-            Pipeline.run_r("ahsjdhfjaklsdf")
 
-        results = [r for r in Pipeline.run_r("tmp")]
+        results = [r for r in Pipeline.run("tmp", mode=PipelineModes.GENERATOR_RETURNS)]
         self.assertTrue(len(results) == 2)
         self.assertTrue(results[0] == ("first", "func1"))
         self.assertTrue(results[1] == ("second", "func2"))
-
-    def test_inject_from_config(self):
-        parser = ArgumentParser()
-        parser.add_argument("--a", default="a_")
-        parser.add_argument("--b", default="b_")
-
-        @step("tmp")
-        @fill_arguments()
-        def tmp1(a, b="c"):
-            return f"func1:{a}{b}"
-
-        cli_args = ["--b", "b__"]
-        initialize_config(parser.parse_args(cli_args))
-
-        result = [r for r in Pipeline.run_r("tmp")][0]
-        self.assertEqual(result, ("tmp1", "func1:a_b__"))
-
-    def test_inject_failure(self):
-        parser = ArgumentParser()
-        parser.add_argument("--a", default="a_")
-        parser.add_argument("--b", default="b_")
-
-        @step("tmp")
-        @fill_arguments()
-        def tmp1(x, b="c"):
-            return f"func1:{x}{b}"
-
-        with self.assertRaises(MissingConfigParamException):
-            initialize_config(parser.parse_args(["--b", "b__"]))
-
-            result = [r for r in Pipeline.run_r("tmp")][0]
-            self.assertEqual(result, "func1:a_b__")
-
-    def test_conditional_execution_1(self):
-        parser = ArgumentParser()
-        parser.add_argument("--a", default="a_")
-        parser.add_argument("--b", default="b_")
-
-        @step("tmp", "first")
-        @fill_arguments()
-        def tmp1(a, b="c"):
-            return f"func1:{a}{b}"
-
-        @step("tmp", "second")
-        @condition(exp(a="_"))
-        @fill_arguments()
-        def tmp2():
-            print("func2")
-            return "func2"
-
-        initialize_config(parser.parse_args(["--b", "b__"]))
-
-        result = [r for r in Pipeline.run_r("tmp")]
-        self.assertTrue(len(result) == 2)
-        self.assertEqual(result[0], ("first", "func1:a_b__"))
-        self.assertEqual(result[1], ("second", None))
-
-    def test_conditional_execution_2(self):
-        parser = ArgumentParser()
-        parser.add_argument("--a", default="a_")
-        parser.add_argument("--b", default="b_")
-
-        @step("tmp", "first")
-        @fill_arguments()
-        def tmp1(a, b="c"):
-            return f"func1:{a}{b}"
-
-        expression = and_(
-            exp(a="a_"),
-            exp(b="b__")
-        )
-
-        @step("tmp", "second")
-        @condition(expression)
-        def tmp2():
-            print("func2")
-            return "func2"
-
-        initialize_config(parser.parse_args(["--b", "b__"]))
-
-        result = [r for r in Pipeline.run_r("tmp")]
-        self.assertTrue(len(result) == 2)
-        self.assertEqual(result[0], ("first", "func1:a_b__"))
-        self.assertEqual(result[1], ("second", "func2"))
 
     def test_create_pipeline_from_iterable(self):
         def tmp1():
@@ -188,7 +96,7 @@ class PipelineTest(TestCase):
             ("tmp-3", tmp3)
         ])
 
-        result = [r for r in Pipeline.run_r("iter-tmp")]
+        result = [r for r in Pipeline.run("iter-tmp", PipelineModes.GENERATOR_RETURNS)]
 
         self.assertTrue(len(result) == 3)
         self.assertEqual(result[0][1], "1")
@@ -211,7 +119,7 @@ class PipelineTest(TestCase):
             ("tmp-3", tmp3)
         ])
 
-        result = dict([r for r in Pipeline.run_r("iter-tmp")])
+        result = dict([r for r in Pipeline.run("iter-tmp", PipelineModes.GENERATOR_RETURNS)])
 
         self.assertTrue(len(result) == 3)
         self.assertEqual(result["tmp-1"], "1")
@@ -243,7 +151,79 @@ class PipelineTest(TestCase):
         Pipeline.create_pipeline("tmp", [("tmp-2", tmp2), ("tmp-3", tmp3)], extend=True)
         self.assertTrue(len(Pipeline.pipelines["tmp"]) == 3)
 
-        result = dict(Pipeline.run_r("tmp"))
+        result = dict(Pipeline.run("tmp", mode=PipelineModes.GENERATOR_RETURNS))
         self.assertEqual(result["tmp-1"], "1")
         self.assertEqual(result["tmp-2"], "2")
         self.assertEqual(result["tmp-3"], "3")
+
+    def test_pipeline_modes(self):
+        def tmp1():
+            return f"1"
+
+        def tmp2():
+            return f"2"
+
+        def tmp3():
+            return f"3"
+
+        Pipeline.create_pipeline("iter-tmp", [
+            ("tmp-1", tmp1),
+            ("tmp-2", tmp2),
+            ("tmp-3", tmp3)
+        ])
+
+        no_result = Pipeline.run("iter-tmp", mode=PipelineModes.NO_RETURNS)
+        self.assertIsNone(no_result)
+
+        generator_result = Pipeline.run("iter-tmp", mode=PipelineModes.GENERATOR_RETURNS)
+        self.assertEqual(next(generator_result), ("tmp-1", "1"))
+        self.assertEqual(next(generator_result), ("tmp-2", "2"))
+        self.assertEqual(next(generator_result), ("tmp-3", "3"))
+
+        with self.assertRaises(StopIteration):
+            next(generator_result)
+
+        all_result = Pipeline.run("iter-tmp", mode=PipelineModes.ALL_RETURNS)
+        self.assertEqual(all_result, {
+            "tmp-1": "1",
+            "tmp-2": "2",
+            "tmp-3": "3"
+        })
+
+    def test_get_executed_steps_not_raises_when_no_condition(self):
+        def tmp1():
+            return f"1"
+
+        def tmp2():
+            return f"2"
+
+        def tmp3():
+            return f"3"
+
+        Pipeline.create_pipeline("iter-tmp", [
+            ("tmp-1", tmp1),
+            ("tmp-2", tmp2),
+            ("tmp-3", tmp3)
+        ])
+        with self.assertNotRaises(AttributeError):
+            Pipeline.get_executed_steps("iter-tmp")
+
+    def test_get_executed_steps(self):
+        def tmp1():
+            return f"1"
+
+        def tmp2():
+            return f"2"
+
+        def tmp3():
+            return f"3"
+
+        Pipeline.create_pipeline("iter-tmp", [
+            ("tmp-1", tmp1),
+            ("tmp-2", tmp2),
+            ("tmp-3", tmp3)
+        ])
+
+        steps = Pipeline.get_executed_steps("iter-tmp")
+        self.assertEqual(steps, ["tmp-1", "tmp-2", "tmp-3"])
+

@@ -12,5 +12,5 @@ setuptools.setup(
     author_email="mail@david-grimm.de",
     description="pyppy",
     packages=setuptools.find_packages(PATH_TO_THIS_SCRIPT),
-    python_requires='>=3.6'
+    python_requires='>=3.8'
 )

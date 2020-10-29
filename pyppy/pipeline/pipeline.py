@@ -1,42 +1,22 @@
-from inspect import signature
+from collections import namedtuple
+from enum import Enum
 
-from pyppy.config.get_config import config
-from pyppy.utils.exc import MissingPipelineException, MissingConfigParamException, PipelineAlreadyExistsException
+from tabulate import tabulate
 
-
-def get_function_params(function):
-    sig = signature(function)
-
-    out = []
-
-    for name, param in sig.parameters.items():
-        if param.default is param.empty:
-            value = None
-        else:
-            value = param.default
-
-        out.append((name, value))
-
-    return out
+from pyppy.utils.exc import MissingPipelineException, PipelineAlreadyExistsException
 
 
-def fill_function_parameters_from_config(params):
-    new_params = {}
-    for param in params:
-        name, val = param
-        if name in config():
-            val = getattr(config(), name)
-        if not val:
-            raise MissingConfigParamException(
-                f"Param {name} not found in config!"
-            )
-        new_params[name] = val
+class PipelineModes(str, Enum):
 
-    return new_params
+    NO_RETURNS = "no_return"
+    GENERATOR_RETURNS = "generator"
+    ALL_RETURNS = "all_returns"
+
+
+_Step = namedtuple('Step', ['name', 'func'])
 
 
 def step(pipeline_name, step_name=None):
-
     def decorator(func):
         if not step_name:
             inner_step_name = func.__name__
@@ -45,7 +25,7 @@ def step(pipeline_name, step_name=None):
 
         Pipeline.pipelines.setdefault(
             pipeline_name, []
-        ).append((inner_step_name, func))
+        ).append(_Step(inner_step_name, func))
 
         return func
     return decorator
@@ -63,24 +43,26 @@ class Pipeline:
             return False
 
     @staticmethod
-    def run_r(pipeline_name):
+    def run(pipeline_name, mode=PipelineModes.NO_RETURNS):
         if not Pipeline._pipeline_exists(pipeline_name):
             raise MissingPipelineException((
                 f"Pipeline with name {pipeline_name} does "
                 f"not exist!"
             ))
-        for func in Pipeline.pipelines[pipeline_name]:
-            yield func[0], func[1]()
 
-    @staticmethod
-    def run(pipeline_name):
-        if not Pipeline._pipeline_exists(pipeline_name):
-            raise MissingPipelineException((
-                f"Pipeline with name {pipeline_name} does "
-                f"not exist!"
-            ))
-        for func in Pipeline.pipelines[pipeline_name]:
-            func[1]()
+        if mode == PipelineModes.NO_RETURNS:
+            for step in Pipeline.pipelines[pipeline_name]:
+                step.func()
+        elif mode == PipelineModes.ALL_RETURNS:
+            result = []
+            for step in Pipeline.pipelines[pipeline_name]:
+                result.append((step.name, step.func()))
+            return dict(result)
+        elif mode == PipelineModes.GENERATOR_RETURNS:
+            def generator_returns():
+                for step in Pipeline.pipelines[pipeline_name]:
+                    yield step.name, step.func()
+            return generator_returns()
 
     @staticmethod
     def destroy(pipeline_name=None):
@@ -98,4 +80,37 @@ class Pipeline:
         for item in iterable_of_tuples:
             Pipeline.pipelines.setdefault(
                 pipeline_name, []
-            ).append(item)
+            ).append(_Step(*item))
+
+    @staticmethod
+    def get_executed_steps(pipeline_name, string_representation=False):
+        if not Pipeline._pipeline_exists(pipeline_name):
+            raise MissingPipelineException((
+                f"Pipeline with name {pipeline_name} does "
+                f"not exist!"
+            ))
+
+        executed_steps = []
+        not_executed_steps = []
+
+        for step in Pipeline.pipelines[pipeline_name]:
+            if hasattr(step.func, "exp"):
+                if step.func.exp():
+                    executed_steps.append(step.name)
+                else:
+                    not_executed_steps.append(step.name)
+            else:
+                executed_steps.append(step.name)
+
+        if string_representation:
+            out = []
+            for step in Pipeline.pipelines[pipeline_name]:
+                if step.name in executed_steps:
+                    out.append([step.name, "X"])
+                else:
+                    out.append([step.name, "-"])
+            return tabulate(out, headers=["Step", 'Executed'],
+                            tablefmt='orgtbl')
+
+        ExecutedSteps = namedtuple("ExecutedSteps", ("executed", "not_executed"))
+        return ExecutedSteps(executed_steps, not_executed_steps)

@@ -8,27 +8,22 @@ from pyppy.config.get_config import initialize_config
 from pyppy.config.get_container import container
 from pyppy.pipeline.pipeline import step, Pipeline
 
-# --- 1: ArgumentParser
+
 parser = ArgumentParser()
 parser.add_argument("--debug",
-                    action="store_const",
-                    const=True,
+                    action="store_true",
                     default=False)
 
 parser.add_argument("--add-synthetic-rows",
-                    action="store_const",
-                    const=True,
+                    action="store_true",
                     default=False)
 
-# --- 2: parse args
 cli_args = ["--debug", "--add-synthetic-rows"]
 args = parser.parse_args(cli_args)
 
-# --- 3: initialize config
 initialize_config(args)
 
-# --- 4: create pipeline step and fill
-#        method arguments from config
+
 @step("df_proc", "create_df")
 @fill_arguments()
 def create_data_frame(debug):
@@ -49,8 +44,6 @@ def create_data_frame(debug):
     container().df = df
     return df
 
-# --- 5: pipeline step based on condition
-#        from config
 @step("df_proc", "add_rows")
 @condition(exp(add_synthetic_rows=True))
 @fill_arguments()
@@ -61,7 +54,7 @@ def add_rows(df):
     return df2
 
 
-results = dict([result for result in Pipeline.run_r("df_proc")])
+results = Pipeline.run_a("df_proc")
 final_df = results["add_rows"]
 
 print(final_df)
