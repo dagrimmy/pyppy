@@ -167,4 +167,4 @@ class RoundTripTest(TestCase):
         self.assertEqual(steps.not_executed, ["tmp-2"])
 
         str_steps = Pipeline.get_executed_steps("tmp", string_representation=True)
-        self.assertEqual(re.sub("[\|\- +\n]", "", str_steps), "StepExecutedtmp1Xtmp2tmp3X")
+        self.assertEqual(re.sub(r"[\|\- +\n]", "", str_steps), "StepExecutedtmp1Xtmp2tmp3X")

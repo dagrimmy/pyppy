@@ -225,5 +225,5 @@ class PipelineTest(TestCase):
         ])
 
         steps = Pipeline.get_executed_steps("iter-tmp")
-        self.assertEqual(steps, ["tmp-1", "tmp-2", "tmp-3"])
+        self.assertEqual(steps.executed, ["tmp-1", "tmp-2", "tmp-3"])
 
