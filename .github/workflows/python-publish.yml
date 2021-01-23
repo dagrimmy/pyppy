@@ -28,7 +28,7 @@ jobs:
         --user
     - name: Run pytest
       run: >-
-        pytest test/
+        python -m pytest test/
     - name: Build a binary wheel and a source tarball
       run: >-
         python -m
