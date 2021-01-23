@@ -18,11 +18,13 @@ def initialize_config(args=Namespace()):
     the dot notation: "obj.<attribute>".
     """
     if hasattr(config, _CONFIG):
-        raise ConfigAlreadyInitializedException((
-            "Config has already been initialized. "
-            "If you want to initialize a new config call "
-            f"{destroy_config.__name__}()."
-        ))
+        raise ConfigAlreadyInitializedException(
+            (
+                "Config has already been initialized. "
+                "If you want to initialize a new config call "
+                f"{destroy_config.__name__}()."
+            )
+        )
     config(args)
 
 

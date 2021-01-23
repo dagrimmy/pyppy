@@ -12,7 +12,7 @@ from pyppy.constants import UNSET_VALUE
 from pyppy.exc import (
     FunctionSignatureNotSupportedException,
     OnlyKeywordArgumentsAllowedException,
-    IllegalStateException
+    IllegalStateException,
 )
 
 
@@ -47,12 +47,16 @@ def _check_function_signature_supported(func):
     sig = signature(func)
 
     for _, param in sig.parameters.items():
-        if param.kind in (param.POSITIONAL_ONLY,
-                          param.VAR_KEYWORD,
-                          param.VAR_POSITIONAL):
+        if param.kind in (
+            param.POSITIONAL_ONLY,
+            param.VAR_KEYWORD,
+            param.VAR_POSITIONAL,
+        ):
             raise FunctionSignatureNotSupportedException(
-                ("Currently only functions with arguments that have types "
-                 "of POSITIONAL_OR_KEYWORD and KEYWORD_ONLY are supported.")
+                (
+                    "Currently only functions with arguments that have types "
+                    "of POSITIONAL_OR_KEYWORD and KEYWORD_ONLY are supported."
+                )
             )
 
 
@@ -77,9 +81,11 @@ def fill_arguments(*arguments_to_be_filled):
 
             if len(args) > 0:
                 raise OnlyKeywordArgumentsAllowedException(
-                    (f"Only keyword arguments are allowed when executing a "
-                     f"function defined with the {fill_arguments.__name__} "
-                     f"decorator.")
+                    (
+                        f"Only keyword arguments are allowed when executing a "
+                        f"function defined with the {fill_arguments.__name__} "
+                        f"decorator."
+                    )
                 )
 
             filled_kwargs.update(kwargs)
@@ -97,4 +103,5 @@ def fill_arguments(*arguments_to_be_filled):
             return func(**filled_kwargs)
 
         return argument_filler
+
     return fill_arguments_decorator

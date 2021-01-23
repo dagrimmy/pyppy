@@ -6,10 +6,7 @@ functions based on the global config.
 import functools
 
 from pyppy.config import config
-from pyppy.exc import (
-    ConditionRaisedException,
-    ConditionDidNotReturnBooleansException
-)
+from pyppy.exc import ConditionRaisedException, ConditionDidNotReturnBooleansException
 
 
 def and_(*exps):
@@ -18,12 +15,14 @@ def and_(*exps):
     the logical 'and' value from all of the boolean values
     return by the single expressions.
     """
+
     def inner():
         for arg in exps:
             current = arg()
             if not current:
                 return False
         return True
+
     return inner
 
 
@@ -33,11 +32,13 @@ def or_(*args):
     the logical 'or' value from all of the boolean values
     return by the single expressions.
     """
+
     def inner():
         for arg in args:
             if arg():
                 return True
         return False
+
     return inner
 
 
@@ -75,14 +76,13 @@ def exp(single_condition=None, **kwargs):
     """
     Expression that returs true based on the given condition.
     """
+
     def condition_evaluator():
         if single_condition:
             return evaluate_single_condition(single_condition)
 
         if len(kwargs) > 1:
-            raise Exception(
-                "Only one key value pair allowed"
-            )
+            raise Exception("Only one key value pair allowed")
         key, val = list(kwargs.items())[0]
 
         if not hasattr(config(), key):
@@ -102,6 +102,7 @@ def condition(exp_):
     yielding a boolean value based on which the
     decorated function is executed or not.
     """
+
     def condition_decorator(func):
         condition_decorator.exp = exp_
         func.exp = exp_
@@ -115,5 +116,7 @@ def condition(exp_):
                 return func(*args, **kwargs)
 
             return None
+
         return condition_check
+
     return condition_decorator
