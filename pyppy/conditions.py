@@ -1,8 +1,10 @@
 import functools
 
 from pyppy.config import config
-from pyppy.exc import AmbiguousConditionValuesException, ConditionRaisedException, \
+from pyppy.exc import (
+    ConditionRaisedException,
     ConditionDidNotReturnBooleansException
+)
 
 
 def and_(*args):
