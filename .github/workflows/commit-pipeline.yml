@@ -22,5 +22,5 @@ jobs:
       run: >-
         python -m pytest test/
     - name: Run pylint
-        run: >-
-          python -m pylint pyppy/
+      run: >-
+        python -m pylint pyppy/
