@@ -11,3 +11,6 @@ black:
 
 pytest:
 	pytest test/
+
+mypy:
+	mypy pyppy/

@@ -6,6 +6,7 @@ for accomplishing this task.
 
 import functools
 from inspect import signature
+from typing import Callable, Iterable, Any
 
 from pyppy.config import config
 from pyppy.constants import UNSET_VALUE
@@ -16,7 +17,7 @@ from pyppy.exc import (
 )
 
 
-def _get_attribute(attribute, obj):
+def _get_attribute(attribute: str, obj: object) -> object:
     """
     Get specified attribute from the given object or
     else return the value of the constant UNSET_VALUE.
@@ -28,7 +29,7 @@ def _get_attribute(attribute, obj):
     return val
 
 
-def _get_value_from_config_or_container(param_name):
+def _get_value_from_config_or_container(param_name: str) -> object:
     config_val = _get_attribute(param_name, config())
 
     if config_val is UNSET_VALUE:
@@ -37,7 +38,7 @@ def _get_value_from_config_or_container(param_name):
     return config_val
 
 
-def _check_function_signature_supported(func):
+def _check_function_signature_supported(func: Callable) -> None:
     """
     Checks if a given function has a supported type.
     If function signature includes parameters that are
@@ -60,20 +61,20 @@ def _check_function_signature_supported(func):
             )
 
 
-def fill_arguments(*arguments_to_be_filled):
+def fill_arguments(*arguments_to_be_filled: Iterable[str]) -> Callable:
     """
     Function decorator that can be used to fill arguments
     of the decorated function by looking them up in the global
     config object.
     """
 
-    def fill_arguments_decorator(func):
+    def fill_arguments_decorator(func: Callable) -> Callable:
         _check_function_signature_supported(func)
         sig = signature(func)
         filled_kwargs = {}
 
         @functools.wraps(func)
-        def argument_filler(*args, **kwargs):
+        def argument_filler(*args: Any, **kwargs: Any) -> Callable:
             for name, _ in sig.parameters.items():
                 if name in arguments_to_be_filled or len(arguments_to_be_filled) == 0:
                     value = _get_value_from_config_or_container(name)
