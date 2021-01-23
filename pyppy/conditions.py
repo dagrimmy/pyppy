@@ -1,8 +1,8 @@
 import functools
 
-from pyppy.config.get_config import config
-from pyppy.config.get_container import container
-from pyppy.utils.exc import AmbiguousConditionValuesException, ConditionRaisedException, \
+from pyppy.config import config
+from pyppy.container import container
+from pyppy.exc import AmbiguousConditionValuesException, ConditionRaisedException, \
     ConditionDidNotReturnBooleansException
 
 

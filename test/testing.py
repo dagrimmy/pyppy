@@ -1,9 +1,8 @@
 from contextlib import contextmanager
 from argparse import Namespace
 
-from pyppy.config.get_config import destroy_config, initialize_config
-from pyppy.config.get_container import destroy_container, container
-from pyppy.pipeline.pipeline import step
+from pyppy.config import destroy_config, initialize_config
+from pyppy.container import destroy_container, container
 
 
 def _fake_config(**kwargs):

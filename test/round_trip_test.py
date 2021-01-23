@@ -1,12 +1,12 @@
 import re
 from argparse import ArgumentParser, Namespace
 
-from pyppy.arguments.fill_arguments import fill_arguments
-from pyppy.conditions.conditions import condition, exp, and_
-from pyppy.config.get_config import initialize_config, destroy_config
-from pyppy.pipeline.pipeline import step, Pipeline, PipelineModes
-from pyppy.utils.exc import IllegalStateException
-from test.utils.testcase import TestCase
+from pyppy.args import fill_arguments
+from pyppy.conditions import condition, exp, and_
+from pyppy.config import initialize_config, destroy_config
+from pyppy.pipeline import step, Pipeline, PipelineModes
+from pyppy.exc import IllegalStateException
+from test.testcase import TestCase
 
 
 class RoundTripTest(TestCase):

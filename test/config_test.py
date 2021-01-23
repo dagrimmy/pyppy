@@ -1,8 +1,8 @@
 from argparse import ArgumentParser, Namespace
 
-from pyppy.config.get_config import initialize_config, config, destroy_config
-from pyppy.utils.exc import ConfigAlreadyInitializedException
-from test.utils.testcase import TestCase
+from pyppy.config import initialize_config, config, destroy_config
+from pyppy.exc import ConfigAlreadyInitializedException
+from test.testcase import TestCase
 
 
 class ContainerTest(TestCase):

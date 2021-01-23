@@ -3,7 +3,7 @@ from enum import Enum
 
 from tabulate import tabulate
 
-from pyppy.utils.exc import MissingPipelineException, PipelineAlreadyExistsException
+from pyppy.exc import MissingPipelineException, PipelineAlreadyExistsException
 
 
 class PipelineModes(str, Enum):

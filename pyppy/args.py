@@ -1,10 +1,10 @@
 import functools
 from inspect import signature
 
-from pyppy.config.get_config import config
-from pyppy.config.get_container import container
-from pyppy.utils.constants import UNSET_VALUE
-from pyppy.utils.exc import MissingConfigParamException, ConflictingArgumentValuesException, \
+from pyppy.config import config
+from pyppy.container import container
+from pyppy.constants import UNSET_VALUE
+from pyppy.exc import ConflictingArgumentValuesException, \
     FunctionSignatureNotSupportedException, OnlyKeywordArgumentsAllowedException, IllegalStateException
 
 

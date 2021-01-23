@@ -1,6 +1,6 @@
 from argparse import Namespace
 
-from pyppy.utils.exc import ConfigAlreadyInitializedException
+from pyppy.exc import ConfigAlreadyInitializedException
 
 _CONFIG = "confyg"
 

@@ -1,12 +1,12 @@
 from argparse import ArgumentParser, Namespace
 
-from pyppy.conditions.conditions import condition, exp, and_, or_
-from pyppy.config.get_container import container, destroy_container
-from pyppy.utils.exc import AmbiguousConditionValuesException, ConditionRaisedException, \
+from pyppy.conditions import condition, exp, and_, or_
+from pyppy.container import container, destroy_container
+from pyppy.exc import AmbiguousConditionValuesException, ConditionRaisedException, \
     ConditionDidNotReturnBooleansException
-from test.utils.testcase import TestCase
-from pyppy.config.get_config import initialize_config, destroy_config, config
-from test.utils.testing import fake_config
+from test.testcase import TestCase
+from pyppy.config import initialize_config, destroy_config, config
+from test.testing import fake_config
 
 DEFAULT_ARG_DICT = {
     "arg1": "val1",

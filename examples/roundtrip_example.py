@@ -2,11 +2,11 @@ from io import StringIO
 from argparse import ArgumentParser
 import pandas as pd
 
-from pyppy.arguments.fill_arguments import fill_arguments
-from pyppy.conditions.conditions import condition, exp
-from pyppy.config.get_config import initialize_config
-from pyppy.config.get_container import container
-from pyppy.pipeline.pipeline import step, Pipeline
+from pyppy.args import fill_arguments
+from pyppy.conditions import condition, exp
+from pyppy.config import initialize_config
+from pyppy.container import container
+from pyppy.pipeline import step, Pipeline
 
 
 parser = ArgumentParser()
@@ -43,6 +43,7 @@ def create_data_frame(debug):
 
     container().df = df
     return df
+
 
 @step("df_proc", "add_rows")
 @condition(exp(add_synthetic_rows=True))

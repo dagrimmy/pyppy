@@ -1,6 +1,6 @@
-from pyppy.config.get_container import container, destroy_container, _CONTAINER
-from test.utils.testcase import TestCase
-from test.utils.testing import container_config_cleanup
+from pyppy.container import container, destroy_container, _CONTAINER
+from test.testcase import TestCase
+from test.testing import container_config_cleanup
 
 
 class ContainerTest(TestCase):

@@ -2,9 +2,9 @@ import io
 import re
 import sys
 
-from pyppy.pipeline.pipeline import step, Pipeline, PipelineModes
-from pyppy.utils.exc import MissingPipelineException, PipelineAlreadyExistsException
-from test.utils.testcase import TestCase
+from pyppy.pipeline import step, Pipeline, PipelineModes
+from pyppy.exc import MissingPipelineException, PipelineAlreadyExistsException
+from test.testcase import TestCase
 
 
 class PipelineTest(TestCase):

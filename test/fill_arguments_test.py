@@ -1,10 +1,10 @@
-from pyppy.arguments.fill_arguments import fill_arguments
-from pyppy.config.get_config import destroy_config, initialize_config
-from pyppy.config.get_container import destroy_container, container
-from pyppy.utils.exc import FunctionSignatureNotSupportedException, OnlyKeywordArgumentsAllowedException, \
+from pyppy.args import fill_arguments
+from pyppy.config import destroy_config, initialize_config
+from pyppy.container import destroy_container
+from pyppy.exc import FunctionSignatureNotSupportedException, OnlyKeywordArgumentsAllowedException, \
     ConflictingArgumentValuesException, IllegalStateException
-from test.utils.testcase import TestCase
-from test.utils.testing import fake_config, fake_container
+from test.testcase import TestCase
+from test.testing import fake_config, fake_container
 
 DEFAULT_ARG_DICT = {
     "arg1": "val1",
