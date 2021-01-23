@@ -1,12 +1,24 @@
-# pyppy - global config and easy conditional execution of methods for Python
-## what is it?
+# pyppy - Global Config and Config-Conditional Functions for Python
+* [What Is It?](#what-is-it)
+* [Global Config Object](#global-config-object)
+* [Automatic Argument Filling from Config Object](#automatic-argument-filling-from-config-object)
+    + [Automatic Detection of Arguments to be Filled](#automatic-detection-of-arguments-to-be-filled)
+    + [Mixed Parameters](#mixed-parameters)
+    + [Explicit Parameter Filling](#explicit-parameter-filling)
+* [Conditional Execution of Functions based on Global Config State](#conditional-execution-of-functions-based-on-global-config-state)
+    + [Exact Value Matching](#exact-value-matching)
+    + [Custom Conditions](#custom-conditions)
+    + [Logical Conjunction and Disjunction of Conditions](#logical-conjunction-and-disjunction-of-conditions)
+* [Enhancements](#enhancements)
+* [Contribution](#contribution)
+## What Is It?
 *pyppy* is a Python library that allows to initialize a global config object that can be used
 throughout your code without passing a config object between all of your methods. Additionally, 
 pyppy comes with a function decorator that allows for easy retrieval of config attributes in methods.
 
 In the following sections you can find some examples of what you can do with *pyppy*.
 
-### global config object
+## Global Config Object
 You can use the method ```initialize_config``` to initialize a global config and then use
 the config with ```config()``` all throughout your project. In the following example we use 
 it as a wrapper for arguments parsed with ```ArgumentParser``` but you can you any object
@@ -32,7 +44,8 @@ def debug_log():
     if config().debug:
         print("debugging")
 ```
-### automatic argument filling from config object
+## Automatic Argument Filling from Config Object
+### Automatic Detection of Arguments to be Filled
 It gets even better. You can use the ```@fill_arguments``` decorator to automatically fill
 function arguments from the global config object. If a function argument has the same name 
 as an attribute of your config it will automatically be filled with the corresponding value.
@@ -46,7 +59,7 @@ def debug_log(debug):
 >>> debug_log()
 debugging
 ```
-
+### Mixed Parameters
 If you have mixed parameters (parameters coming from the global config and parameters passed ad-hoc)
 the decorator only fills the arguments which names exactly match with one of the attributes of 
 the global config. **Please note** that the "normal" parameters
@@ -60,7 +73,7 @@ def debug_log(debug, message):
 >>> debug_log(message="hello")
 hello
 ```
-
+### Explicit Parameter Filling
 In some cases it's necessary to tell the decorator exactly which arguments should be filled
 from the global config (e.g. when a function argument has the same name as an attribute of the 
 global config but should not be filled from the global config). Then you can pass the names of
@@ -75,7 +88,8 @@ def debug_log(debug, message):
 >>> debug_log(message="hello")
 hello 
 ```
-### conditional execution of functions based on global config
+## Conditional Execution of Functions based on Global Config State
+### Exact Value Matching
 *pyppy* allows you to execute functions based on conditions in your global config object.
 In the example below, the ```@condition``` decorator will only execute the decorated function
 when the specified condition evaluates to true in based on the global config. An expression
@@ -97,7 +111,7 @@ def debug_log():
 >>> debug_log()
 <no console output>
 ```
-
+### Custom Conditions
 In cases you want to apply more complex conditions the decorator allows you to pass
 a function with custom logic. The function should always return a boolean value (which
 specifies if the decorated function should be executed or not). In the example below, we
@@ -121,7 +135,7 @@ def log_warn():
 >>> log_warn()
 WARNING
 ```
-
+### Logical Conjunction and Disjunction of Conditions
 If you have multiple conditions that have to be true at the same time or either one has
 to be true you can use ```or_``` and ```and_``` to build the logic around them. ```or_``` and
 ```and``` can be nested if necessary. 
@@ -147,9 +161,9 @@ def log_warn_level_1():
 
 log_warn_level_1()
 ```
-## enhancements
+## Enhancements
 We're working on some enhancements so stay tuned :)
 
-## contribution
+## Contribution
 Feel free to create pull requests or contact me if you want to become a permanent 
 contributor. 
