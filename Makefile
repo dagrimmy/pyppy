@@ -1,4 +1,4 @@
-all: pylint-src black pytest
+all: pylint-src black pytest mypy
 
 pylint-src:
 	pylint pyppy/
