@@ -1,11 +1,12 @@
-name: Publish Python 🐍 distributions 📦 to PyPI and TestPyPI
+name: Publish to Pypi
 
 on: 
-  push:
+  release:
+    types: [created]
   workflow_dispatch:
 jobs:
   build-n-publish:
-    name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
+    name: Build and publish Python distribution to PyPI
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@master
@@ -26,7 +27,7 @@ jobs:
         --sdist
         --wheel
         --outdir dist/
-    - name: Publish distribution 📦 to PyPI
+    - name: Publish distribution to PyPI
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}
