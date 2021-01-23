@@ -29,7 +29,8 @@ setuptools.setup(
         'dev': [
             'pytest',
             'pytest-pep8',
-            'pytest-cov'
+            'pytest-cov',
+            'pylint>=2.6.0'
         ]
     }
 )

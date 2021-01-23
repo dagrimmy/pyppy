@@ -1,42 +1,46 @@
+"""
+Contains exceptions for pyppy.
+"""
+
+
 class ConfigAlreadyInitializedException(Exception):
-    pass
-
-
-class MissingPipelineException(Exception):
-    pass
+    """
+    Exception indicating that a global config has already
+    been initialized.
+    """
 
 
 class MissingConfigParamException(Exception):
-    pass
-
-
-class PipelineAlreadyExistsException(Exception):
-    pass
-
-
-class AmbiguousConditionValuesException(Exception):
-    pass
+    """
+    MissingConfigParamException
+    """
 
 
 class ConditionRaisedException(Exception):
-    pass
+    """
+    ConditionRaisedException
+    """
 
 
 class ConditionDidNotReturnBooleansException(Exception):
-    pass
-
-
-class ConflictingArgumentValuesException(Exception):
-    pass
+    """
+    ConditionDidNotReturnBooleansException
+    """
 
 
 class FunctionSignatureNotSupportedException(Exception):
-    pass
+    """
+    FunctionSignatureNotSupportedException
+    """
 
 
 class OnlyKeywordArgumentsAllowedException(Exception):
-    pass
+    """
+    OnlyKeywordArgumentsAllowedException
+    """
 
 
 class IllegalStateException(Exception):
-    pass
+    """
+    IllegalStateException
+    """

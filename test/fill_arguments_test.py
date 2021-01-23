@@ -1,7 +1,6 @@
 from pyppy.args import fill_arguments
-from pyppy.config import destroy_config, initialize_config
-from pyppy.exc import FunctionSignatureNotSupportedException, OnlyKeywordArgumentsAllowedException, \
-    ConflictingArgumentValuesException, IllegalStateException
+from pyppy.config import destroy_config
+from pyppy.exc import FunctionSignatureNotSupportedException, OnlyKeywordArgumentsAllowedException
 from test.testcase import TestCase
 from test.testing import fake_config
 
