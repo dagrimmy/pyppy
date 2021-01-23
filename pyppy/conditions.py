@@ -1,7 +1,6 @@
 import functools
 
 from pyppy.config import config
-from pyppy.container import container
 from pyppy.exc import AmbiguousConditionValuesException, ConditionRaisedException, \
     ConditionDidNotReturnBooleansException
 
@@ -25,6 +24,13 @@ def or_(*args):
     return inner
 
 
+def _check_bool(value):
+    if isinstance(value, bool):
+        return True
+    else:
+        return False
+
+
 def evaluate_single_condition(single_condition):
     exceptions = []
 
@@ -34,38 +40,11 @@ def evaluate_single_condition(single_condition):
         exceptions.append(e1)
         conf_value = None
 
-    try:
-        cont_value = single_condition(container())
-    except Exception as e2:
-        exceptions.append(e2)
-        cont_value = None
-
-    if conf_value is None and cont_value is None:
+    if conf_value is None:
         raise ConditionRaisedException(exceptions)
-
-    if conf_value is not None and cont_value is not None:
-        if conf_value != cont_value:
-            raise AmbiguousConditionValuesException(
-                ("\n\tAmbiguous condition values for "
-                 "config and container! \n\tThis happens "
-                 "because config() and container() hold "
-                 "attributes with same names\n\tbut evaluate to "
-                 "different boolean values with the current "
-                 "condition.\n\tYou might want to choose unique"
-                 " names to avoid these errors.")
-            )
-
-    def _check_bool(value):
-        if isinstance(value, bool):
-            return True
-        else:
-            return False
-
-    if _check_bool(conf_value):
-        return conf_value
-
-    if _check_bool(cont_value):
-        return cont_value
+    else:
+        if _check_bool(conf_value):
+            return conf_value
 
     raise ConditionDidNotReturnBooleansException(
         "The condition did not return a valid boolean!"

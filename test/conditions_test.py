@@ -1,9 +1,7 @@
 from argparse import ArgumentParser, Namespace
 
 from pyppy.conditions import condition, exp, and_, or_
-from pyppy.container import container, destroy_container
-from pyppy.exc import AmbiguousConditionValuesException, ConditionRaisedException, \
-    ConditionDidNotReturnBooleansException
+from pyppy.exc import ConditionRaisedException
 from test.testcase import TestCase
 from pyppy.config import initialize_config, destroy_config, config
 from test.testing import fake_config
@@ -20,7 +18,6 @@ class ConditionsTest(TestCase):
 
     def setUp(self) -> None:
         destroy_config()
-        destroy_container()
 
     def test_single_condition_true(self):
         with fake_config(**DEFAULT_ARG_DICT):
@@ -29,64 +26,6 @@ class ConditionsTest(TestCase):
                 return "returned"
 
             self.assertTrue(tmp() == "returned")
-
-    def test_wrong_condition(self):
-        with fake_config(**DEFAULT_ARG_DICT):
-            @condition(exp(lambda c: c.tmp()))
-            def tmp1():
-                container().tmp2 = 2
-                return "tmp1 returned"
-
-            with self.assertRaises(ConditionRaisedException):
-                tmp1()
-
-            try:
-                tmp1()
-            except ConditionRaisedException as e:
-                self.assertTrue(isinstance(e.args[0][0], AttributeError))
-                self.assertTrue(isinstance(e.args[0][1], AttributeError))
-
-    def test_single_condition_container(self):
-        with fake_config(**DEFAULT_ARG_DICT):
-            @condition(exp(lambda c: c.arg1 == "val1"))
-            def tmp1():
-                container().tmp2 = 2
-                return "tmp1 returned"
-
-            @condition(exp(lambda c: c.tmp2 == 2))
-            def tmp2():
-                return "tmp2 returned"
-
-            self.assertEqual("tmp1 returned", tmp1())
-            self.assertEqual("tmp2 returned", tmp2())
-
-            tmp1()
-            tmp2()
-
-    def test_false_return_for_condition(self):
-        with fake_config(tmp1=1):
-            @condition(exp(lambda c: str(c.tmp1)))
-            def tmp1():
-                container().tmp1 = 2
-                return "tmp1 returned"
-
-            with self.assertRaises(ConditionDidNotReturnBooleansException):
-                tmp1()
-
-    def test_conflicting_condition_values(self):
-        with fake_config(**DEFAULT_ARG_DICT):
-            @condition(exp(lambda c: c.arg1 == "val1"))
-            def tmp1():
-                container().arg1 = 2
-                return "tmp1 returned"
-
-            @condition(exp(lambda c: c.arg1 == 2))
-            def tmp2():
-                return "tmp2 returned"
-
-            tmp1()
-            with self.assertRaises(AmbiguousConditionValuesException):
-                tmp2()
 
     def test_single_condition_false(self):
         with fake_config(tmp1=1):
@@ -141,12 +80,6 @@ class ConditionsTest(TestCase):
 
         with self.assertRaises(ConditionRaisedException):
             tmp1()
-
-        try:
-            tmp1()
-        except ConditionRaisedException as e:
-            self.assertTrue(isinstance(e.args[0][0], AttributeError))
-            self.assertTrue(isinstance(e.args[0][1], AttributeError))
 
     def test_subparser_condition_right_order(self):
         parser = ArgumentParser()

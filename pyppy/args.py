@@ -2,10 +2,12 @@ import functools
 from inspect import signature
 
 from pyppy.config import config
-from pyppy.container import container
 from pyppy.constants import UNSET_VALUE
-from pyppy.exc import ConflictingArgumentValuesException, \
-    FunctionSignatureNotSupportedException, OnlyKeywordArgumentsAllowedException, IllegalStateException
+from pyppy.exc import (
+    FunctionSignatureNotSupportedException,
+    OnlyKeywordArgumentsAllowedException,
+    IllegalStateException
+)
 
 
 def _get_value(param_name, obj):
@@ -18,25 +20,11 @@ def _get_value(param_name, obj):
 
 def _get_value_from_config_or_container(param_name):
     config_val = _get_value(param_name, config())
-    container_val = _get_value(param_name, container())
 
-    if config_val is UNSET_VALUE and container_val is UNSET_VALUE:
+    if config_val is UNSET_VALUE:
         return UNSET_VALUE
-
-    if config_val is not UNSET_VALUE and container_val is not UNSET_VALUE:
-        if container_val is not config_val:
-            raise ConflictingArgumentValuesException(
-                (f"Found param with name {param_name} in config and "
-                 f"container with conflicting values!")
-            )
-
-    if container_val is not UNSET_VALUE:
-        val = container_val
-
-    if config_val is not UNSET_VALUE:
-        val = config_val
-
-    return val
+    else:
+        return config_val
 
 
 def _check_function_signature_supported(func):

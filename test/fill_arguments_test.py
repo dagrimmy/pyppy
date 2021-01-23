@@ -1,10 +1,9 @@
 from pyppy.args import fill_arguments
 from pyppy.config import destroy_config, initialize_config
-from pyppy.container import destroy_container
 from pyppy.exc import FunctionSignatureNotSupportedException, OnlyKeywordArgumentsAllowedException, \
     ConflictingArgumentValuesException, IllegalStateException
 from test.testcase import TestCase
-from test.testing import fake_config, fake_container
+from test.testing import fake_config
 
 DEFAULT_ARG_DICT = {
     "arg1": "val1",
@@ -32,7 +31,6 @@ class FillArgumentsTest(TestCase):
 
     def setUp(self) -> None:
         destroy_config()
-        destroy_container()
 
     def test_fill_one_arg(self):
         with fake_config(**DEFAULT_ARG_DICT):
@@ -179,66 +177,3 @@ class FillArgumentsTest(TestCase):
                 @fill_arguments()
                 def tmp4(arg1, **kwargs):
                     return arg1, kwargs
-
-    def test_fill_arguments_from_container(self):
-        with fake_container(**DEFAULT_ARG_DICT):
-            initialize_config()
-
-            @fill_arguments()
-            def tmp(arg1, arg2, arg3, arg4):
-                return arg1, arg2, arg3, arg4
-
-            self.assertEqual(tmp(), (
-                DEFAULT_ARG_DICT['arg1'],
-                DEFAULT_ARG_DICT['arg2'],
-                DEFAULT_ARG_DICT['arg3'],
-                DEFAULT_ARG_DICT['arg4']
-            ))
-
-    def test_fill_arguments_from_container_and_config(self):
-        with fake_container(**DEFAULT_CONT_DICT), \
-             fake_config(**DEFAULT_ARG_DICT):
-
-            @fill_arguments()
-            def tmp(arg1, cont2, arg3, cont4):
-                return arg1, cont2, arg3, cont4
-
-            self.assertEqual(tmp(), (
-                DEFAULT_ARG_DICT['arg1'],
-                DEFAULT_CONT_DICT['cont2'],
-                DEFAULT_ARG_DICT['arg3'],
-                DEFAULT_CONT_DICT['cont4']
-            ))
-
-    def test_conflicting_container_and_config_values(self):
-        with fake_container(arg1="different_than_config"), \
-             fake_config(**DEFAULT_ARG_DICT):
-
-            @fill_arguments()
-            def tmp(arg1, cont2, arg3, cont4):
-                return arg1, cont2, arg3, cont4
-
-            with self.assertRaises(ConflictingArgumentValuesException):
-                tmp()
-
-    def test_conflicting_container_and_config_values_different_types(self):
-        with fake_container(arg1="1"), \
-             fake_config(arg1=1):
-
-            @fill_arguments()
-            def tmp(arg1, cont2, arg3, cont4):
-                return arg1, cont2, arg3, cont4
-
-            with self.assertRaises(ConflictingArgumentValuesException):
-                tmp()
-
-    def test_non_found_arguments(self):
-        with fake_container(**DEFAULT_ARG_DICT), \
-             fake_config(**DEFAULT_ARG_DICT):
-
-            @fill_arguments()
-            def tmp(arg_is_not_in_config_and_container):
-                return arg_is_not_in_config_and_container
-
-            with self.assertRaises(IllegalStateException):
-                tmp()
