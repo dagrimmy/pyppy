@@ -1,4 +1,4 @@
-name: Publish to Pypi
+name: Commit pipeline
 
 on: 
   push:
