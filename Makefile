@@ -14,3 +14,6 @@ pytest:
 
 mypy:
 	mypy pyppy/
+
+apidoc:
+	sphinx-apidoc -o ./source ../pyppy
