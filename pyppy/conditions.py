@@ -162,7 +162,7 @@ def _evaluate_condition_func(single_condition: Callable[[object], bool]) -> bool
     try:
         conf_value = single_condition(config())
     except Exception as exc:  # pylint: disable=W0703
-        raise ConditionRaisedException(exc)
+        raise ConditionRaisedException from exc
 
     if _check_is_bool(conf_value):
         return conf_value
