@@ -96,7 +96,7 @@ when the specified condition evaluates to true in based on the global config. An
 like ```exp(debug=True)``` means that the function will only be executed if the attribute ```debug```
 has the value ```True```. 
 ```python
-from pyppy.conditions import exp, condition
+from pyppy.conditions import Exp, condition
 from pyppy.config import initialize_config
 import types
 
@@ -119,7 +119,7 @@ use a lambda function but you can naturally use normal functions too. The only r
 are that the function should exactly expect one argument (the global config) and should return
 a boolean value.
 ```python
-from pyppy.conditions import exp, condition
+from pyppy.conditions import Exp, condition
 from pyppy.config import initialize_config
 import types
 
@@ -141,7 +141,7 @@ to be true you can use ```or_``` and ```and_``` to build the logic around them. 
 ```and``` can be nested if necessary. 
 
 ```python
-from pyppy.conditions import condition, exp, and_
+from pyppy.conditions import condition, Exp, and_
 import types
 
 args = types.SimpleNamespace()

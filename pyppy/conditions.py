@@ -4,49 +4,12 @@ functions based on the global config.
 """
 
 import functools
+from typing import Callable
+from typing import Any
 
 from pyppy.config import config
 from pyppy.exc import ConditionRaisedException, ConditionDidNotReturnBooleansException
-
-
-def and_(*exps):
-    """
-    Takes a variable number of expressions and builds
-    the logical 'and' value from all of the boolean values
-    return by the single expressions.
-    """
-
-    def inner():
-        for arg in exps:
-            current = arg()
-            if not current:
-                return False
-        return True
-
-    return inner
-
-
-def or_(*args):
-    """
-    Takes a variable number of expressions and builds
-    the logical 'or' value from all of the boolean values
-    return by the single expressions.
-    """
-
-    def inner():
-        for arg in args:
-            if arg():
-                return True
-        return False
-
-    return inner
-
-
-def _check_bool(value):
-    if isinstance(value, bool):  # pylint: disable=R1703
-        return True
-
-    return False
+from pyppy.utils import _check_is_bool
 
 
 def evaluate_single_condition(single_condition):
@@ -64,7 +27,7 @@ def evaluate_single_condition(single_condition):
     if conf_value is None:
         raise ConditionRaisedException(exceptions)
 
-    if _check_bool(conf_value):
+    if _check_is_bool(conf_value):
         return conf_value
 
     raise ConditionDidNotReturnBooleansException(
@@ -72,18 +35,28 @@ def evaluate_single_condition(single_condition):
     )
 
 
-def exp(single_condition=None, **kwargs):
+class Exp:  # pylint: disable=R0903
     """
-    Expression that returs true based on the given condition.
+    Class that represents a boolean logic based on the global
+    config. On creation, a condition or keyword arguments are
+    given (mutually exclusiv). When an object of this class is
+    called the given condition is evaluated or the keyword
+    arguments are transformed into exact matches with the global
+    configs attributes.
+
     """
 
-    def condition_evaluator():
-        if single_condition:
-            return evaluate_single_condition(single_condition)
+    def __init__(self, single_condition=None, **kwargs):
+        self._single_condition = single_condition
+        self._kwargs = kwargs
 
-        if len(kwargs) > 1:
+    def __call__(self):
+        if self._single_condition:
+            return evaluate_single_condition(self._single_condition)
+
+        if len(self._kwargs) > 1:
             raise Exception("Only one key value pair allowed")
-        key, val = list(kwargs.items())[0]
+        key, val = list(self._kwargs.items())[0]
 
         if not hasattr(config(), key):
             return False
@@ -93,23 +66,28 @@ def exp(single_condition=None, **kwargs):
 
         return False
 
-    return condition_evaluator
 
-
-def condition(exp_):
+def condition(exp: Callable[[], bool]) -> Callable[[Any], Any]:
     """
-    Function decorator that assumes an expression
-    yielding a boolean value based on which the
-    decorated function is executed or not.
+    Returns a function decorator that will evaluate the given expression
+    when the decorated function is called and will execute the decorated
+    function when the boolean value is True.
+
+    The expressions boolean value is usually dependent on the global
+    config object but it is only important that it is a boolean value
+    and not how it is generated.
     """
 
     def condition_decorator(func):
-        condition_decorator.exp = exp_
-        func.exp = exp_
+        """
+        Decorates a function and will evaluate the expression that has
+        been given to the 'condition' function.
+
+        """
+        condition_decorator.exp = exp
 
         @functools.wraps(func)
         def condition_check(*args, **kwargs):
-            condition_check.exp = exp_
             condition_result = condition_decorator.exp()
 
             if condition_result:
@@ -120,3 +98,40 @@ def condition(exp_):
         return condition_check
 
     return condition_decorator
+
+
+def and_(*exps: Callable[[], bool]) -> Callable[[], bool]:
+    """
+    Returns a function that is able to build the
+    logical conjunction of the given expressions.
+    So, when the returned function is executed
+    it is checked whether all given expressions
+    return True.
+    """
+
+    def and_evaluator():
+        for exp in exps:
+            current = exp()
+            if not current:
+                return False
+        return True
+
+    return and_evaluator
+
+
+def or_(*exps: Callable[[], bool]) -> Callable[[], bool]:
+    """
+    Returns a function that is able to build the
+    logical dijunction of the given expressions.
+    So, when the returned function is executed
+    it is checked whether at least one of the
+    given expressions returns True.
+    """
+
+    def or_evaluator():
+        for exp in exps:
+            if exp():
+                return True
+        return False
+
+    return or_evaluator

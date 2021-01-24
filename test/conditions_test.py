@@ -1,6 +1,6 @@
 from argparse import ArgumentParser, Namespace
 
-from pyppy.conditions import condition, exp, and_, or_
+from pyppy.conditions import condition, Exp, and_, or_
 from pyppy.exc import ConditionRaisedException
 from test.testcase import TestCase
 from pyppy.config import initialize_config, destroy_config, config
@@ -21,7 +21,7 @@ class ConditionsTest(TestCase):
 
     def test_single_condition_true(self):
         with fake_config(**DEFAULT_ARG_DICT):
-            @condition(exp(lambda c: c.arg1 == "val1"))
+            @condition(Exp(lambda c: c.arg1 == "val1"))
             def tmp():
                 return "returned"
 
@@ -29,7 +29,7 @@ class ConditionsTest(TestCase):
 
     def test_single_condition_false(self):
         with fake_config(tmp1=1):
-            @condition(exp(lambda c: c.tmp1 == 2))
+            @condition(Exp(lambda c: c.tmp1 == 2))
             def tmp():
                 return "returned"
 
@@ -47,7 +47,7 @@ class ConditionsTest(TestCase):
         namespace = Namespace()
         namespace.tmp1 = 1
 
-        @condition(exp(lambda c: c.tmp1 == 1))
+        @condition(Exp(lambda c: c.tmp1 == 1))
         def tmp():
             return "returned"
 
@@ -71,8 +71,8 @@ class ConditionsTest(TestCase):
 
         @condition(
             and_(
-                exp(lambda c: c.sub2_tmp == 2),
-                exp(lambda c: c.command == "sub2")
+                Exp(lambda c: c.sub2_tmp == 2),
+                Exp(lambda c: c.command == "sub2")
             )
         )
         def tmp1():
@@ -97,8 +97,8 @@ class ConditionsTest(TestCase):
 
         @condition(
             and_(
-                exp(lambda c: c.command == "sub2"),
-                exp(lambda c: c.sub2_tmp == 2)
+                Exp(lambda c: c.command == "sub2"),
+                Exp(lambda c: c.sub2_tmp == 2)
             )
         )
         def tmp2():
@@ -110,7 +110,7 @@ class ConditionsTest(TestCase):
         self.assertIsNone(tmp2())
 
     def test_single_exp(self):
-        @condition(exp(a="b"))
+        @condition(Exp(a="b"))
         def tmp():
             return "returned"
 
@@ -127,10 +127,10 @@ class ConditionsTest(TestCase):
         with fake_config(a="b", d="e"):
             expression = and_(
                 or_(
-                    exp(a="b"),
-                    exp(b="c")
+                    Exp(a="b"),
+                    Exp(b="c")
                 ),
-                exp(d="e")
+                Exp(d="e")
             )
 
             @condition(expression)
@@ -143,10 +143,10 @@ class ConditionsTest(TestCase):
         with fake_config(b="c", d="e"):
             expression = and_(
                 or_(
-                    exp(a="b"),
-                    exp(b="c")
+                    Exp(a="b"),
+                    Exp(b="c")
                 ),
-                exp(d="e")
+                Exp(d="e")
             )
 
             @condition(expression)
@@ -159,10 +159,10 @@ class ConditionsTest(TestCase):
         with fake_config(a="b", b="c"):
             expression = and_(
                 or_(
-                    exp(a="b"),
-                    exp(b="c")
+                    Exp(a="b"),
+                    Exp(b="c")
                 ),
-                exp(d="e")
+                Exp(d="e")
             )
 
             @condition(expression)
@@ -175,10 +175,10 @@ class ConditionsTest(TestCase):
         with fake_config(d="e"):
             expression = and_(
                 or_(
-                    exp(a="b"),
-                    exp(b="c")
+                    Exp(a="b"),
+                    Exp(b="c")
                 ),
-                exp(d="e")
+                Exp(d="e")
             )
 
             @condition(expression)
@@ -191,8 +191,8 @@ class ConditionsTest(TestCase):
         with fake_config(a="b"):
 
             expression = or_(
-                exp(a="b"),
-                exp(b="c")
+                Exp(a="b"),
+                Exp(b="c")
             )
 
             self.assertTrue(expression())

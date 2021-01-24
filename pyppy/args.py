@@ -9,7 +9,7 @@ from inspect import signature
 from typing import Callable, Iterable, Any
 
 from pyppy.config import config
-from pyppy.constants import UNSET_VALUE
+from pyppy.const import UNSET_VALUE
 from pyppy.exc import (
     FunctionSignatureNotSupportedException,
     OnlyKeywordArgumentsAllowedException,
@@ -17,28 +17,7 @@ from pyppy.exc import (
 )
 
 
-def _get_attribute(attribute: str, obj: object) -> object:
-    """
-    Get specified attribute from the given object or
-    else return the value of the constant UNSET_VALUE.
-    """
-    val = UNSET_VALUE
-    if hasattr(obj, attribute):
-        val = getattr(obj, attribute)
-
-    return val
-
-
-def _get_value_from_config_or_container(param_name: str) -> object:
-    config_val = _get_attribute(param_name, config())
-
-    if config_val is UNSET_VALUE:
-        return UNSET_VALUE
-
-    return config_val
-
-
-def _check_function_signature_supported(func: Callable) -> None:
+def _check_func_signature_supported(func: Callable) -> None:
     """
     Checks if a given function has a supported type.
     If function signature includes parameters that are
@@ -61,30 +40,63 @@ def _check_function_signature_supported(func: Callable) -> None:
             )
 
 
-def fill_arguments(*arguments_to_be_filled: Iterable[str]) -> Callable:
+def fill_args(*args_to_be_filled: Iterable[str]) -> Callable:
     """
-    Function decorator that can be used to fill arguments
-    of the decorated function by looking them up in the global
-    config object.
+    Returns a function decorator that automatically fills function
+    arguments based on the global config object. Function arguments
+    that have the same name as an attribute of the global config will
+    be automatically filled with the corresponding value when the
+    decorated function is executed.
+
+    Arguments to be filled can be set explictly via the arguments_to_be_filled
+    varargs argument.
     """
 
-    def fill_arguments_decorator(func: Callable) -> Callable:
-        _check_function_signature_supported(func)
+    def fill_args_decorator(func: Callable) -> Callable:
+        """
+        Function decorator that takes a function and return a new
+        function that will, when executed, fill arguments of the
+        original function based on their value in the global config.
+
+        Currently specific function signatures are supported.
+        The decorator checks if a function signature is supported
+        and raises an exception otherwise.
+        """
+        _check_func_signature_supported(func)
         sig = signature(func)
         filled_kwargs = {}
 
         @functools.wraps(func)
         def argument_filler(*args: Any, **kwargs: Any) -> Callable:
+            """
+            Wrapper around the original function. This function checks
+            if arguments of the original function have the same name
+            as attributes of the global config.
+
+            If the arguments to be filled have been set explicitly
+            in the fill_args function only the corresponding arguments
+            are checked.
+
+            If arguments are declared a arguments to be filled but are
+            not present in the global config object it is still
+            possible to provide them as keyword argument on function
+            execution. If the corresponding arguments are not filled
+            from the config and not provided on function execution
+            an exception is raised.
+            """
             for name, _ in sig.parameters.items():
-                if name in arguments_to_be_filled or len(arguments_to_be_filled) == 0:
-                    value = _get_value_from_config_or_container(name)
+                if name in args_to_be_filled or len(args_to_be_filled) == 0:
+                    try:
+                        value = getattr(config(), name)
+                    except AttributeError:
+                        value = UNSET_VALUE
                     filled_kwargs[name] = value
 
             if len(args) > 0:
                 raise OnlyKeywordArgumentsAllowedException(
                     (
                         f"Only keyword arguments are allowed when executing a "
-                        f"function defined with the {fill_arguments.__name__} "
+                        f"function defined with the {fill_args.__name__} "
                         f"decorator."
                     )
                 )
@@ -94,10 +106,10 @@ def fill_arguments(*arguments_to_be_filled: Iterable[str]) -> Callable:
             for name, value in filled_kwargs.items():
                 if value is UNSET_VALUE:
                     raise IllegalStateException(
-                        f"\n\tArgument {name} was not filled from context \n\t"
-                        f"(container, config) and was not provided when \n\t"
+                        f"\n\tArgument {name} was not present in the global \n\t"
+                        f"config and was not provided as keyword argument when \n\t"
                         f"the function {func} was executed. Please make sure \n\t"
-                        f"needed arguments are either provided within the context "
+                        f"needed arguments are either provided within the config \n\t"
                         f"or when running a 'fill_arguments'-decorated function."
                     )
 
@@ -105,4 +117,4 @@ def fill_arguments(*arguments_to_be_filled: Iterable[str]) -> Callable:
 
         return argument_filler
 
-    return fill_arguments_decorator
+    return fill_args_decorator
