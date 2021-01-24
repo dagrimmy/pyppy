@@ -14,12 +14,18 @@ https://pyppy.readthedocs.io/en/latest/
     + [Logical Conjunction and Disjunction of Conditions](#logical-conjunction-and-disjunction-of-conditions)
 * [Enhancements](#enhancements)
 * [Contribution](#contribution)
+
 ## What Is It?
 *pyppy* is a Python library that allows to initialize a global config object that can be used
 throughout your code without passing a config object between all of your methods. Additionally, 
 pyppy comes with a function decorator that allows for easy retrieval of config attributes in methods.
 
 In the following sections you can find some examples of what you can do with *pyppy*.
+
+## Installation
+```bash
+pip install pyppy
+```
 
 ## Global Config Object
 You can use the method ```initialize_config``` to initialize a global config and then use

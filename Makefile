@@ -1,4 +1,4 @@
-all: pylint-src black pytest mypy
+all: pylint-src black pytest mypy doctest htmldoc
 
 pylint-src:
 	pylint pyppy/
@@ -11,6 +11,9 @@ black:
 
 pytest:
 	pytest test/
+
+doctest:
+	pytest --doctest-modules pyppy/
 
 mypy:
 	mypy pyppy/

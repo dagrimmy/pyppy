@@ -27,10 +27,13 @@ Table of Contents
 
 * `Enhancements <#enhancements>`_
 * `Contribution <#contribution>`_
-  ## What Is It?
-  *pyppy* is a Python library that allows to initialize a global config object that can be used
-  throughout your code without passing a config object between all of your methods. Additionally, 
-  pyppy comes with a function decorator that allows for easy retrieval of config attributes in methods.
+
+What Is It?
+-----------
+
+*pyppy* is a Python library that allows to initialize a global config object that can be used
+throughout your code without passing a config object between all of your methods. Additionally, 
+pyppy comes with a function decorator that allows for easy retrieval of config attributes in methods.
 
 In the following sections you can find some examples of what you can do with *pyppy*.
 
