@@ -10,7 +10,6 @@ Submodules
    pyppy.args
    pyppy.conditions
    pyppy.config
-   pyppy.const
    pyppy.exc
    pyppy.utils
 

@@ -1,4 +1,4 @@
-"""Global config management.
+"""Global config management
 
 This module provides functions for initializing, accessing and destroying
 a global config object. You can initialize a global config from any object.
@@ -7,8 +7,8 @@ object are used and work with the decorators ``fill_args`` and ``condition``.
 But you can use any object you like. The config management methods are
 just a convenience reference to the original object.
 
-Config initialization
----------------------
+Initialization
+--------------
 In this example, we initialize a global config from a ``NameSpace`` parsed
 with a custom ``ArgumentParser``. For demonstration purposes, the parser
 will not parse args from the commandline but from a list::
@@ -34,8 +34,8 @@ accessing the global config object (see Config access section)::
     from pyppy.config import initialize_config
     initialize_config(args)
 
-Config access
--------------
+Access
+------
 Now that you have initialized the global config, you can use it
 throughout your code::
 
@@ -49,8 +49,8 @@ Note
     is returned any time you call ``config()``, so you can do everything
     with the object that you could also do before.
 
-Config modification
--------------------
+Modification
+------------
 It is possible to change the global config object during time, e.g. to pass
 information between objects in your code. We know that the term 'config'
 is not ideal for these use cases and we're working on functionality to
@@ -60,8 +60,8 @@ modification::
     config().message = "bye!"
     print(config().message)
 
-Config recreation
------------------
+Reset
+-----
 There can be only one global config object. So whenever you have
 initialized a config you cannot initialize a new one. If you try to
 an exception is raised. In the rare cases you might want to have
@@ -96,6 +96,7 @@ def initialize_config(obj: object = SimpleNamespace()) -> None:
 
     Examples
     --------
+    >>> destroy_config()
     >>> c = SimpleNamespace()
     >>> c.option = "say_hello"
     >>> initialize_config(c)
@@ -103,9 +104,6 @@ def initialize_config(obj: object = SimpleNamespace()) -> None:
     'say_hello'
     >>> destroy_config()
 
-    Config initialization::
-        from pyppy.config import initialize_config
-        initialize_config(args)
     """
     if hasattr(config, _CONFIG):
         raise ConfigAlreadyInitializedException(
@@ -125,11 +123,12 @@ def config(_obj: object = None) -> object:
     Returns
     -------
     object:
-        The objecet that was used to initialize the global
+        The object that was used to initialize the global
         config.
 
     Examples
     --------
+    >>> destroy_config()
     >>> c = SimpleNamespace()
     >>> c.option = "say_hello"
     >>> initialize_config(c)
@@ -152,6 +151,7 @@ def destroy_config() -> None:
 
     Examples
     --------
+    >>> destroy_config()
     >>> c = SimpleNamespace()
     >>> c.option = "say_hello"
     >>> initialize_config(c)

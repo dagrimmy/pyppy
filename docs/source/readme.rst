@@ -37,6 +37,20 @@ pyppy comes with a function decorator that allows for easy retrieval of config a
 
 In the following sections you can find some examples of what you can do with *pyppy*.
 
+When to Use It?
+---------------
+
+When you have a global application configuration that you want to access throughout
+all your code without having to pass it around from function to function or from class to 
+class.
+
+Installation
+------------
+
+.. code-block:: bash
+
+   pip install pyppy
+
 Global Config Object
 --------------------
 
