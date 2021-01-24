@@ -1,4 +1,7 @@
 # pyppy - Global Config and Config-Conditional Function Execution for Python
+## Please Read the Docs
+https://pyppy.readthedocs.io/en/latest/
+## Table of Contents
 * [What Is It?](#what-is-it)
 * [Global Config Object](#global-config-object)
 * [Automatic Argument Filling from Config Object](#automatic-argument-filling-from-config-object)
