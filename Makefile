@@ -16,4 +16,4 @@ mypy:
 	mypy pyppy/
 
 apidoc:
-	sphinx-apidoc -o ./source ../pyppy
+	cd docs && make clean && sphinx-apidoc --force -e -o ./source ../pyppy
