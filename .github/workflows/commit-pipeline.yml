@@ -24,3 +24,6 @@ jobs:
     - name: Run pylint
       run: >-
         python -m pylint pyppy/
+    - name: Run doctests
+      run: >-
+        python -m pytest --doctest-modules pyppy/
