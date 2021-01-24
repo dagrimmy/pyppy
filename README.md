@@ -1,4 +1,4 @@
-# pyppy - Global Config and Config-Conditional Function Execution for Python
+# pyppy
 ## Please Read the Docs
 https://pyppy.readthedocs.io/en/latest/
 ## Table of Contents
