@@ -265,18 +265,25 @@ def condition(exp: Callable[[], bool]) -> Callable[[Any], Any]:
 
     Examples
     --------
-    from pyppy.conditions import Exp, condition
-    from pyppy.config import initialize_config
-    import types
+    >>> from pyppy.conditions import Exp, condition
+    >>> from pyppy.config import initialize_config, destroy_config
+    >>> import types
 
-    args = types.SimpleNamespace()
-    args.log_level = "WARN_LEVEL_1"
+    >>> destroy_config()
+    >>> args = types.SimpleNamespace()
+    >>> args.log_level = "WARN_LEVEL_1"
+    >>> initialize_config(args)
 
-    initialize_config(args)
+    >>> @condition(Exp(lambda c: c.log_level.startswith("WARN")))
+    ... def log_warn():
+    ...     print("WARNING")
 
-    @condition(exp(lambda config: config.log_level.startswith("WARN")))
-    def log_warn():
-        print("WARNING")
+    >>> log_warn()
+    WARNING
+
+    >>> @condition(Exp(log_level="WARN_LEVEL_1"))
+    ... def log_warn():
+    ...     print("WARNING")
 
     >>> log_warn()
     WARNING
@@ -306,11 +313,46 @@ def condition(exp: Callable[[], bool]) -> Callable[[Any], Any]:
 
 def and_(*exps: Callable[[], bool]) -> Callable[[], bool]:
     """
-    Returns a function that is able to build the
-    logical conjunction of the given expressions.
-    So, when the returned function is executed
-    it is checked whether all given expressions
-    return True.
+    Represents the logical conjunction between two expressions of
+    type ``Exp``.
+
+    Parameters
+    ----------
+    *exps: Callable
+        Any number of callables without parameters that return a
+        boolean value when called. The logical conjunction between
+        the truth values of the called expressions will determine the
+        final boolean value.
+
+    Returns
+    -------
+    bool:
+        The logical conjunction between the boolean values obtained
+        after calling all input expressions.
+
+    Examples
+    --------
+    >>> from pyppy.conditions import Exp, condition
+    >>> from pyppy.config import initialize_config, destroy_config
+    >>> import types
+
+    >>> destroy_config()
+    >>> args = types.SimpleNamespace()
+    >>> args.log_level = "WARN"
+    >>> args.specific_log_level = "LEVEL_1"
+    >>> initialize_config(args)
+
+    >>> @condition(
+    ...     and_(
+    ...         Exp(log_level="WARN"),
+    ...         Exp(specific_log_level="LEVEL_1"),
+    ...     )
+    ... )
+    ... def log_warn_level_1():
+    ...     return "WARNING_LEVEL_1"
+
+    >>> log_warn_level_1()
+    'WARNING_LEVEL_1'
     """
 
     def and_evaluator():
@@ -325,11 +367,45 @@ def and_(*exps: Callable[[], bool]) -> Callable[[], bool]:
 
 def or_(*exps: Callable[[], bool]) -> Callable[[], bool]:
     """
-    Returns a function that is able to build the
-    logical dijunction of the given expressions.
-    So, when the returned function is executed
-    it is checked whether at least one of the
-    given expressions returns True.
+    Represents the logical disjunction between two expressions of
+    type ``Exp``.
+
+    Parameters
+    ----------
+    *exps: Callable
+        Any number of callables without parameters that return a
+        boolean value when called. The logical disjunction between
+        the truth values of the called expressions will determine the
+        final boolean value.
+
+    Returns
+    -------
+    bool:
+        The logical disjunction between the boolean values obtained
+        after calling all input expressions.
+
+    Examples
+    --------
+    >>> from pyppy.conditions import Exp, condition
+    >>> from pyppy.config import initialize_config, destroy_config
+    >>> import types
+
+    >>> destroy_config()
+    >>> args = types.SimpleNamespace()
+    >>> args.log_level = "WARN"
+    >>> initialize_config(args)
+
+    >>> @condition(
+    ...     or_(
+    ...         Exp(log_level="WARN"),
+    ...         Exp(log_level="INFO"),
+    ...     )
+    ... )
+    ... def log_debug():
+    ...     return "WARNING_OR_INFO"
+
+    >>> log_debug()
+    'WARNING_OR_INFO'
     """
 
     def or_evaluator():
