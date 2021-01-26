@@ -1,6 +1,17 @@
 # pyppy
+*pyppy* is a Python library that allows to initialize a global config object that can be used
+throughout your code without passing a config object between all of your methods. Additionally, 
+pyppy comes with a function decorator that allows for easy retrieval of config attributes in methods.
+
+
 ## Please Read the Docs
 https://pyppy.readthedocs.io/en/latest/
+
+## Installation
+```bash
+pip install pyppy
+```
+
 ## Table of Contents
 * [What Is It?](#what-is-it)
 * [Global Config Object](#global-config-object)
@@ -15,24 +26,14 @@ https://pyppy.readthedocs.io/en/latest/
 * [Enhancements](#enhancements)
 * [Contribution](#contribution)
 
-## What Is It?
-*pyppy* is a Python library that allows to initialize a global config object that can be used
-throughout your code without passing a config object between all of your methods. Additionally, 
-pyppy comes with a function decorator that allows for easy retrieval of config attributes in methods.
-
-In the following sections you can find some examples of what you can do with *pyppy*.
-
-## When to Use It?
-When you have a global application configuration that you want to access throughout
-all your code without having to pass it around from function to function or from class to 
-class.
-
-## Installation
-```bash
-pip install pyppy
-```
+## Usecases
+*pyppy* might help you if you want one of the following: 
+* Easy global config access throughout your code 
+* Execute methods conditionally based on the global configuration
 
 ## Global Config Object
+More here: https://pyppy.readthedocs.io/en/latest/pyppy.config.html 
+
 You can use the method ```initialize_config``` to initialize a global config and then use
 the config with ```config()``` all throughout your project. In the following example we use 
 it as a wrapper for arguments parsed with ```ArgumentParser``` but you can you any object
@@ -53,11 +54,14 @@ args = parser.parse_args(cli_args)
 
 initialize_config(args)
 
-
 def debug_log():
     if config().debug:
-        print("debugging")
+        return "debugging"
+
+>>> debug_log()
+debugging
 ```
+
 ## Automatic Argument Filling from Config Object
 ### Automatic Detection of Arguments to be Filled
 It gets even better. You can use the ```@fill_arguments``` decorator to automatically fill
@@ -65,10 +69,15 @@ function arguments from the global config object. If a function argument has the
 as an attribute of your config it will automatically be filled with the corresponding value.
 (We're assuming here you have initialized the same config as in the last example.)
 ```python
-@fill_arguments
+from pyppy.args import fill_args
+
+initialize_config()
+config().debug = True
+
+@fill_args()
 def debug_log(debug):
-    if debug is True:
-        print("debugging")
+    if debug:
+        return "debugging"
 
 >>> debug_log()
 debugging
@@ -79,13 +88,19 @@ the decorator only fills the arguments which names exactly match with one of the
 the global config. **Please note** that the "normal" parameters
 can then only be passed as keyword arguments when calling the function.   
 ```python
-@fill_arguments()
-def debug_log(debug, message):
-    if debug is True:
-        print(message)
+from pyppy.args import fill_args
+from pyppy.config import initialize_config, config
 
->>> debug_log(message="hello")
-hello
+initialize_config()
+config().debug = True
+
+@fill_args()
+def debug_log(debug, message):
+    if debug:
+        return f"debugging: {message}"
+
+>>> debug_log(message="useful logs") 
+debugging: useful logs
 ```
 ### Explicit Parameter Filling
 In some cases it's necessary to tell the decorator exactly which arguments should be filled
@@ -94,13 +109,16 @@ global config but should not be filled from the global config). Then you can pas
 the arguments to be filled to the decorator as strings. The decorator will then only fill the
 parameters that are explicitly passed.
 ```python
-@fill_arguments("debug")
-def debug_log(debug, message):
-    if debug is True:
-        print(message)
+initialize_config()
+config().debug = True
 
->>> debug_log(message="hello")
-hello 
+@fill_args("debug")
+def debug_log(debug, message):
+    if debug:
+        return f"debugging: {message}"
+
+>>> debug_log(message="useful logs")
+debugging: useful logs
 ```
 ## Conditional Execution of Functions based on Global Config State
 ### Exact Value Matching
@@ -111,19 +129,21 @@ like ```exp(debug=True)``` means that the function will only be executed if the 
 has the value ```True```. 
 ```python
 from pyppy.conditions import Exp, condition
-from pyppy.config import initialize_config
-import types
 
-args = types.SimpleNamespace()
-args.debug = False
-initialize_config(args)
+initialize_config()
+config().debug = False
 
-@condition(exp(debug=True))
+@condition(Exp(debug=True))
 def debug_log():
-    print("hello")
+    return "hello"
 
 >>> debug_log()
-<no console output>
+<no output>
+
+>>> config().debug = True
+
+>>> debug_log()
+hello
 ```
 ### Custom Conditions
 In cases you want to apply more complex conditions the decorator allows you to pass
@@ -133,21 +153,22 @@ use a lambda function but you can naturally use normal functions too. The only r
 are that the function should exactly expect one argument (the global config) and should return
 a boolean value.
 ```python
-from pyppy.conditions import Exp, condition
-from pyppy.config import initialize_config
-import types
 
-args = types.SimpleNamespace()
-args.log_level = "WARN_LEVEL_1"
+initialize_config()
+config().log_level = "WARN_LEVEL_1"
 
-initialize_config(args)
-
-@condition(exp(lambda config: config.log_level.startswith("WARN")))
+@condition(Exp(lambda config: config.log_level.startswith("WARN")))
 def log_warn():
-    print("WARNING")
+    return "WARNING"
 
 >>> log_warn()
 WARNING
+
+>>> config().log_level
+
+>>> log_warn()
+INFO_LEVEL_2
+
 ```
 ### Logical Conjunction and Disjunction of Conditions
 If you have multiple conditions that have to be true at the same time or either one has
@@ -155,25 +176,27 @@ to be true you can use ```or_``` and ```and_``` to build the logic around them. 
 ```and``` can be nested if necessary. 
 
 ```python
-from pyppy.conditions import condition, Exp, and_
-import types
-
-args = types.SimpleNamespace()
-args.log_level = "WARN"
-args.specific_log_level = "LEVEL_1"
-
-initialize_config(args)
+initialize_config()
+config().log_level = "WARN"
+config().specific_log_level = "LEVEL_1"
 
 @condition(
     and_(
-        exp(log_level="WARN"),
-        exp(specific_log_level="LEVEL_1")
+        Exp(log_level="WARN"),
+        Exp(specific_log_level="LEVEL_1")
     )
 )
-def log_warn_level_1():
-    print("WARNING LEVEL 1")
 
-log_warn_level_1()
+def log_warn_level_1():
+    return "WARNING LEVEL 1"
+
+>>> log_warn_level_1()
+WARNING LEVEL 1
+
+>>> config().log_level = "INFO"
+
+>>> log_warn_level_1()
+<no output>
 ```
 ## Enhancements
 We're working on some enhancements so stay tuned :)
