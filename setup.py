@@ -10,7 +10,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="pyppy",
-    version="0.1.0",
+    version="0.1.1",
     author="David Grimm",
     author_email="maehster@gmail.com",
     description="Python library for global configuration and conditional method execution.",
