@@ -2,10 +2,21 @@
 pyppy
 =====
 
+*pyppy* is a Python library that allows to initialize a global config object that can be used
+throughout your code without passing a config object between all of your methods. Additionally, 
+pyppy comes with a function decorator that allows for easy retrieval of config attributes in methods.
+
 Please Read the Docs
 --------------------
 
 https://pyppy.readthedocs.io/en/latest/
+
+Installation
+------------
+
+.. code-block:: bash
+
+   pip install pyppy
 
 Table of Contents
 -----------------
@@ -28,31 +39,19 @@ Table of Contents
 * `Enhancements <#enhancements>`_
 * `Contribution <#contribution>`_
 
-What Is It?
------------
+Usecases
+--------
 
-*pyppy* is a Python library that allows to initialize a global config object that can be used
-throughout your code without passing a config object between all of your methods. Additionally, 
-pyppy comes with a function decorator that allows for easy retrieval of config attributes in methods.
+*pyppy* might help you if you want one of the following: 
 
-In the following sections you can find some examples of what you can do with *pyppy*.
 
-When to Use It?
----------------
-
-When you have a global application configuration that you want to access throughout
-all your code without having to pass it around from function to function or from class to 
-class.
-
-Installation
-------------
-
-.. code-block:: bash
-
-   pip install pyppy
+* Easy global config access throughout your code 
+* Execute methods conditionally based on the global configuration
 
 Global Config Object
 --------------------
+
+More here: https://pyppy.readthedocs.io/en/latest/pyppy.config.html 
 
 You can use the method ``initialize_config`` to initialize a global config and then use
 the config with ``config()`` all throughout your project. In the following example we use 
@@ -76,10 +75,12 @@ that has attributes to initialize a config.
 
    initialize_config(args)
 
-
    def debug_log():
        if config().debug:
-           print("debugging")
+           return "debugging"
+
+   >>> debug_log()
+   debugging
 
 Automatic Argument Filling from Config Object
 ---------------------------------------------
@@ -94,10 +95,15 @@ as an attribute of your config it will automatically be filled with the correspo
 
 .. code-block:: python
 
-   @fill_arguments
+   from pyppy.args import fill_args
+
+   initialize_config()
+   config().debug = True
+
+   @fill_args()
    def debug_log(debug):
-       if debug is True:
-           print("debugging")
+       if debug:
+           return "debugging"
 
    >>> debug_log()
    debugging
@@ -112,13 +118,19 @@ can then only be passed as keyword arguments when calling the function.
 
 .. code-block:: python
 
-   @fill_arguments()
-   def debug_log(debug, message):
-       if debug is True:
-           print(message)
+   from pyppy.args import fill_args
+   from pyppy.config import initialize_config, config
 
-   >>> debug_log(message="hello")
-   hello
+   initialize_config()
+   config().debug = True
+
+   @fill_args()
+   def debug_log(debug, message):
+       if debug:
+           return f"debugging: {message}"
+
+   >>> debug_log(message="useful logs") 
+   debugging: useful logs
 
 Explicit Parameter Filling
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -131,13 +143,16 @@ parameters that are explicitly passed.
 
 .. code-block:: python
 
-   @fill_arguments("debug")
-   def debug_log(debug, message):
-       if debug is True:
-           print(message)
+   initialize_config()
+   config().debug = True
 
-   >>> debug_log(message="hello")
-   hello
+   @fill_args("debug")
+   def debug_log(debug, message):
+       if debug:
+           return f"debugging: {message}"
+
+   >>> debug_log(message="useful logs")
+   debugging: useful logs
 
 Conditional Execution of Functions based on Global Config State
 ---------------------------------------------------------------
@@ -154,19 +169,21 @@ has the value ``True``.
 .. code-block:: python
 
    from pyppy.conditions import Exp, condition
-   from pyppy.config import initialize_config
-   import types
 
-   args = types.SimpleNamespace()
-   args.debug = False
-   initialize_config(args)
+   initialize_config()
+   config().debug = False
 
-   @condition(exp(debug=True))
+   @condition(Exp(debug=True))
    def debug_log():
-       print("hello")
+       return "hello"
 
    >>> debug_log()
-   <no console output>
+   <no output>
+
+   >>> config().debug = True
+
+   >>> debug_log()
+   hello
 
 Custom Conditions
 ^^^^^^^^^^^^^^^^^
@@ -180,21 +197,21 @@ a boolean value.
 
 .. code-block:: python
 
-   from pyppy.conditions import Exp, condition
-   from pyppy.config import initialize_config
-   import types
 
-   args = types.SimpleNamespace()
-   args.log_level = "WARN_LEVEL_1"
+   initialize_config()
+   config().log_level = "WARN_LEVEL_1"
 
-   initialize_config(args)
-
-   @condition(exp(lambda config: config.log_level.startswith("WARN")))
+   @condition(Exp(lambda config: config.log_level.startswith("WARN")))
    def log_warn():
-       print("WARNING")
+       return "WARNING"
 
    >>> log_warn()
    WARNING
+
+   >>> config().log_level
+
+   >>> log_warn()
+   INFO_LEVEL_2
 
 Logical Conjunction and Disjunction of Conditions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -205,25 +222,27 @@ to be true you can use ``or_`` and ``and_`` to build the logic around them. ``or
 
 .. code-block:: python
 
-   from pyppy.conditions import condition, Exp, and_
-   import types
-
-   args = types.SimpleNamespace()
-   args.log_level = "WARN"
-   args.specific_log_level = "LEVEL_1"
-
-   initialize_config(args)
+   initialize_config()
+   config().log_level = "WARN"
+   config().specific_log_level = "LEVEL_1"
 
    @condition(
        and_(
-           exp(log_level="WARN"),
-           exp(specific_log_level="LEVEL_1")
+           Exp(log_level="WARN"),
+           Exp(specific_log_level="LEVEL_1")
        )
    )
-   def log_warn_level_1():
-       print("WARNING LEVEL 1")
 
-   log_warn_level_1()
+   def log_warn_level_1():
+       return "WARNING LEVEL 1"
+
+   >>> log_warn_level_1()
+   WARNING LEVEL 1
+
+   >>> config().log_level = "INFO"
+
+   >>> log_warn_level_1()
+   <no output>
 
 Enhancements
 ------------

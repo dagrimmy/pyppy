@@ -63,6 +63,7 @@ debugging
 ```
 
 ## Automatic Argument Filling from Config Object
+More here: https://pyppy.readthedocs.io/en/latest/pyppy.args.html
 ### Automatic Detection of Arguments to be Filled
 It gets even better. You can use the ```@fill_arguments``` decorator to automatically fill
 function arguments from the global config object. If a function argument has the same name 
@@ -121,6 +122,8 @@ def debug_log(debug, message):
 debugging: useful logs
 ```
 ## Conditional Execution of Functions based on Global Config State
+More here: https://pyppy.readthedocs.io/en/latest/pyppy.conditions.html
+
 ### Exact Value Matching
 *pyppy* allows you to execute functions based on conditions in your global config object.
 In the example below, the ```@condition``` decorator will only execute the decorated function
@@ -186,7 +189,6 @@ config().specific_log_level = "LEVEL_1"
         Exp(specific_log_level="LEVEL_1")
     )
 )
-
 def log_warn_level_1():
     return "WARNING LEVEL 1"
 
