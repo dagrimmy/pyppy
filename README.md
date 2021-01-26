@@ -13,18 +13,18 @@ pip install pyppy
 ```
 
 ## Table of Contents
-* [What Is It?](#what-is-it)
-* [Global Config Object](#global-config-object)
-* [Automatic Argument Filling from Config Object](#automatic-argument-filling-from-config-object)
+  * [Usecases](#usecases)
+  * [Global Config Object](#global-config-object)
+  * [Automatic Argument Filling from Config Object](#automatic-argument-filling-from-config-object)
     + [Automatic Detection of Arguments to be Filled](#automatic-detection-of-arguments-to-be-filled)
     + [Mixed Parameters](#mixed-parameters)
     + [Explicit Parameter Filling](#explicit-parameter-filling)
-* [Conditional Execution of Functions based on Global Config State](#conditional-execution-of-functions-based-on-global-config-state)
+  * [Conditional Execution of Functions based on Global Config State](#conditional-execution-of-functions-based-on-global-config-state)
     + [Exact Value Matching](#exact-value-matching)
     + [Custom Conditions](#custom-conditions)
     + [Logical Conjunction and Disjunction of Conditions](#logical-conjunction-and-disjunction-of-conditions)
-* [Enhancements](#enhancements)
-* [Contribution](#contribution)
+  * [Enhancements](#enhancements)
+  * [Contribution](#contribution)
 
 ## Usecases
 *pyppy* might help you if you want one of the following: 
@@ -89,7 +89,6 @@ the decorator only fills the arguments which names exactly match with one of the
 the global config. **Please note** that the "normal" parameters
 can then only be passed as keyword arguments when calling the function.   
 ```python
-from pyppy.args import fill_args
 from pyppy.config import initialize_config, config
 
 initialize_config()
@@ -179,6 +178,8 @@ to be true you can use ```or_``` and ```and_``` to build the logic around them. 
 ```and``` can be nested if necessary. 
 
 ```python
+from pyppy.conditions import condition, Exp, and_
+
 initialize_config()
 config().log_level = "WARN"
 config().specific_log_level = "LEVEL_1"
