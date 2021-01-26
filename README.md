@@ -65,7 +65,7 @@ debugging
 ## Automatic Argument Filling from Config Object
 More here: https://pyppy.readthedocs.io/en/latest/pyppy.args.html
 ### Automatic Detection of Arguments to be Filled
-It gets even better. You can use the ```@fill_arguments``` decorator to automatically fill
+It gets even better. You can use the ```@fill_args``` decorator to automatically fill
 function arguments from the global config object. If a function argument has the same name 
 as an attribute of your config it will automatically be filled with the corresponding value.
 (We're assuming here you have initialized the same config as in the last example.)
