@@ -2,12 +2,15 @@
 Think about not allowing to set attrs
 """
 
-from pyppy.config import initialize_config, config
+from pyppy.config import initialize_config, config, destroy_config
 from pyppy.use_config import Attr
 from test.testcase import TestCase
 
 
 class AttrTest(TestCase):
+
+    def setUp(self) -> None:
+        destroy_config()
 
     def test_attr(self):
         initialize_config()

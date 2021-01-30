@@ -1,9 +1,6 @@
-"""
-
-"""
 from typing import Type
 
-from pyppy.config import config
+from pyppy.state import state
 
 
 class Attr:
@@ -12,13 +9,13 @@ class Attr:
         self._attr_name = attr_name
 
     def __get__(self, obj, obj_type=None):
-        return getattr(config(), self._attr_name)
+        return getattr(state(), self._attr_name)
 
 
-def use_config(*used_config_attributes: str):
+def use_state(*used_state_attributes: str):
 
     def decorator(decorated_class: Type):
-        for attr in used_config_attributes:
+        for attr in used_state_attributes:
             setattr(
                 decorated_class,
                 attr,

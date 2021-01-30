@@ -207,3 +207,6 @@ We're working on some enhancements so stay tuned :)
 ## Contribution
 Feel free to create pull requests or contact me if you want to become a permanent 
 contributor. 
+
+## TODO
+* Decorator stacking test (order; does it work?)

@@ -5,18 +5,24 @@ Cases:
     be changed with config() -> only get descriptiors (non override)
 """
 
-from pyppy.config import initialize_config, config
+from pyppy.config import initialize_config, config, destroy_config
 from pyppy.use_config import use_config
 from test.testcase import TestCase
 
 
 class UseConfigTest(TestCase):
 
+    def setUp(self) -> None:
+        destroy_config()
+
     def test_use_config(self):
 
         @use_config("param_1")
         class TestClass:
             pass
+
+            def return_param(self):
+                return self.param_1
 
         initialize_config()
         config().param_1 = "val_1"
@@ -30,3 +36,5 @@ class UseConfigTest(TestCase):
 
         with self.assertRaises(AttributeError):
             TestClass().param_3
+
+        self.assertEqual(TestClass().return_param(), "val_1")

@@ -51,3 +51,10 @@ class IllegalStateException(Exception):
     """
     IllegalStateException
     """
+
+
+class UnexpectedNumberOfReturnsException(Exception):
+    """
+    Exception indicating that a global config has already
+    been initialized.
+    """

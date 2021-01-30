@@ -47,14 +47,14 @@ class StateTest(TestCase):
         cli_args3 = ["--tmp5", "val5", "--tmp6", "6"]
         args3 = parser2.parse_args(cli_args3)
         initialize_state(args3)
-        state3 = state_()
+        state3 = state()
 
         self.assertNotEqual(state3, state_)
         self.assertEqual(state3.tmp5, "val5")
         self.assertEqual(state3.tmp6, 6)
 
         with self.assertRaises(AttributeError):
-            state_().tmp1
+            state().tmp1
 
         with self.assertRaises(AttributeError):
-            state_().tmp2
+            state().tmp2

@@ -2,6 +2,7 @@ from contextlib import contextmanager
 from argparse import Namespace
 
 from pyppy.config import destroy_config, initialize_config
+from pyppy.state import destroy_state, initialize_state
 
 
 def _fake_config(**kwargs):
@@ -24,17 +25,22 @@ def fake_config(**kwargs):
         destroy_config()
 
 
-def create_pipeline_input_function(pipeline_name, func_name, step_name=None, val=None):
+def _fake_state(**kwargs):
+    destroy_state()
 
-    func_def = (f"@step(\"{pipeline_name}\"{',' if step_name else ''} \"{step_name}\")"
-                f"\ndef {func_name}():")
-    if val is not None:
-        func_def += f"\n    print({val})"
+    namespace = Namespace()
+    for k, v in kwargs.items():
+        setattr(namespace, k, v)
 
-        func_def += f"\n    return({val})"
+    initialize_state(namespace)
 
-    if val is None:
-        func_def += "    pass"
 
-    exec(func_def)
-    return eval(func_name)
+@contextmanager
+def fake_state(**kwargs):
+    _fake_state(**kwargs)
+
+    try:
+        yield
+    finally:
+        destroy_state()
+
