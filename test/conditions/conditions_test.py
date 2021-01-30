@@ -1,10 +1,10 @@
 from argparse import ArgumentParser, Namespace
 
-from pyppy.conditions import condition, Exp, and_, or_
-from pyppy.exc import ConditionRaisedException
-from test.testcase import TestCase
-from pyppy.config import initialize_config, destroy_config, config
-from test.testing import fake_config
+from pyppy import condition, Exp, and_, or_
+from pyppy.utils.exception import ConditionRaisedException
+from test.utils.testcase import TestCase
+from pyppy import initialize_config, destroy_config, config
+from test.utils.testing import fake_config
 
 DEFAULT_ARG_DICT = {
     "arg1": "val1",

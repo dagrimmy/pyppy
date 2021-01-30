@@ -40,7 +40,7 @@ it as a wrapper for arguments parsed with ```ArgumentParser``` but you can you a
 that has attributes to initialize a config.  
 ```python
 from argparse import ArgumentParser
-from pyppy.config import initialize_config, config
+from pyppy.config_ import initialize_config, config
 
 parser = ArgumentParser()
 parser.add_argument(
@@ -70,7 +70,7 @@ function arguments from the global config object. If a function argument has the
 as an attribute of your config it will automatically be filled with the corresponding value.
 (We're assuming here you have initialized the same config as in the last example.)
 ```python
-from pyppy.args import fill_args
+from pyppy.config_.args import fill_args
 
 initialize_config()
 config().debug = True
@@ -89,7 +89,7 @@ the decorator only fills the arguments which names exactly match with one of the
 the global config. **Please note** that the "normal" parameters
 can then only be passed as keyword arguments when calling the function.   
 ```python
-from pyppy.config import initialize_config, config
+from pyppy.config_ import initialize_config, config
 
 initialize_config()
 config().debug = True

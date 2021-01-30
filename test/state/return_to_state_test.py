@@ -1,9 +1,9 @@
 from argparse import Namespace
 
-from pyppy.exc import UnexpectedNumberOfReturnsException
-from pyppy.return_to_state import return_to_state
-from pyppy.state import destroy_state, initialize_state, state
-from test.testcase import TestCase
+from pyppy.utils.exception import UnexpectedNumberOfReturnsException
+from pyppy.state_.return_to_state import return_to_state
+from pyppy import destroy_state, initialize_state, state
+from test.utils.testcase import TestCase
 
 
 class ReturnToStateTest(TestCase):

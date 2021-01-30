@@ -1,13 +1,13 @@
 """
 Cases:
     * Is the original class correctly decorated? Will it lose its original attribues?
-    * Don't allow overriding of config parameters in use config decorated classes (config params should only
-    be changed with config() -> only get descriptiors (non override)
+    * Don't allow overriding of config_ parameters in use config_ decorated classes (config_ params should only
+    be changed with config_() -> only get descriptiors (non override)
 """
 
-from pyppy.config import initialize_config, config, destroy_config
-from pyppy.use_config import use_config
-from test.testcase import TestCase
+from pyppy import initialize_config, config, destroy_config
+from pyppy.config_.use_config import use_config
+from test.utils.testcase import TestCase
 
 
 class UseConfigTest(TestCase):

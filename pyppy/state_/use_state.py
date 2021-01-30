@@ -1,6 +1,6 @@
 from typing import Type
 
-from pyppy.state import state
+from pyppy import state
 
 
 class Attr:

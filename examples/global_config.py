@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from pyppy.config import initialize_config, config
+from pyppy.config_ import initialize_config, config
 
 parser = ArgumentParser()
 parser.add_argument(

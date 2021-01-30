@@ -1,8 +1,8 @@
 from argparse import ArgumentParser, Namespace
 
-from pyppy.exc import StateAlreadyInitializedException
-from pyppy.state import destroy_state, initialize_state, state
-from test.testcase import TestCase
+from pyppy.utils.exception import AlreadyInitializedException
+from pyppy import destroy_state, initialize_state, state
+from test.utils.testcase import TestCase
 
 
 class StateTest(TestCase):
@@ -26,7 +26,7 @@ class StateTest(TestCase):
         namespace.tmp = "tmp"
         initialize_state(namespace)
 
-        with self.assertRaises(StateAlreadyInitializedException):
+        with self.assertRaises(AlreadyInitializedException):
             initialize_state(Namespace())
 
         self.assertEqual(namespace, state())

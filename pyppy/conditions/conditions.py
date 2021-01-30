@@ -1,14 +1,14 @@
 """
 Module that contains a decorator generator function ``condition`` that
-can be used to conditionally execute functions based on the state of the
-global config.
+can be used to conditionally execute functions based on the state_ of the
+global config_.
 
 General Example
 ---------------
 Here's an example::
 
     from pyppy.conditions import Exp, condition
-    from pyppy.config import initialize_config
+    from pyppy.config_ import initialize_config
     import types
 
     args = types.SimpleNamespace()
@@ -22,12 +22,12 @@ Here's an example::
     debug_log() # will NOT print "hello"
 
 
-Here's how it works. First, we initialize a global config with
-``initialize_config``, so that executing ``config().debug`` will return
+Here's how it works. First, we initialize a global config_ with
+``initialize_config``, so that executing ``config_().debug`` will return
 ``False``.
 
 Next, we create a function ``debug_log`` that we only want to be
-executed when the value of the attribute ``debug`` in the global config
+executed when the value of the attribute ``debug`` in the global config_
 is ``True``.
 
 To accomplish this task, we use the decorator generator ``@condition``.
@@ -36,20 +36,20 @@ You can use a ``pyppy.conditions.Exp`` object (object which represents an
 'expression') or a custom function (this will be explained below). In this
 case, we are using a simple ``Exp`` object. The expression ``Exp(debug=True)``
 means: return ``True`` when the value of the attribute ``debug`` in the global
-config is ``True`` otherwise return ``False``. You can also use other types
+config_ is ``True`` otherwise return ``False``. You can also use other types
 in ``Exp`` objects like strings: ``Exp(debug="yes")`` would return
-``True`` when the attribute ``debug`` in the global config is equals to "yes".
+``True`` when the attribute ``debug`` in the global config_ is equals to "yes".
 
-Because we set ``debug`` to ``False`` in the global config, executing
+Because we set ``debug`` to ``False`` in the global config_, executing
 ``debug_log()`` will not print anything.
 
 Note
 ----
 The specified condition gets evaluated when a decorated function is executed
 and not when a function is defined. The decision, whether a function is executed,
-can therefore change during runtime based on the state of the config. We know
-that a config is usually stateless but as we do not have a stateful alternative
-yet, you might have cases where you want to use config as a changing object
+can therefore change during runtime based on the state_ of the config_. We know
+that a config_ is usually stateless but as we do not have a stateful alternative
+yet, you might have cases where you want to use config_ as a changing object
 during runtime. (We're working on it...)
 
 
@@ -63,7 +63,7 @@ custom function to the init method of an ``Exp`` object.
 Here's an example::
 
     from pyppy.conditions import Exp, condition
-    from pyppy.config import initialize_config
+    from pyppy.config_ import initialize_config
     import types
 
     args = types.SimpleNamespace()
@@ -71,7 +71,7 @@ Here's an example::
 
     initialize_config(args)
 
-    exp = Exp(lambda config: config.log_level.startswith("WARN"))
+    exp = Exp(lambda config_: config_.log_level.startswith("WARN"))
 
     @condition(exp)
     def log_warn():
@@ -79,13 +79,13 @@ Here's an example::
 
     log_warn() # will print "WARNING"
 
-We again create a global config object. This time it has a ``log_level``
+We again create a global config_ object. This time it has a ``log_level``
 attribute. There could be multiple sub-levels for the WARN level so we
 might want to check if the chosen ``log_level`` starts with ``WARN``.
 
 This is done by passing a function to ``Exp`` which is assumed to take
-the global config as the only argument and should return either ``True`` or
-``False``. Based on this config object, you can implement your own logic
+the global config_ as the only argument and should return either ``True`` or
+``False``. Based on this config_ object, you can implement your own logic
 for returing a ``bool`` value. Here, we check if the ``log_level``
 starts with an expected string. ``log_warn()`` will print ``WARNING``
 because the expression returns ``True``.
@@ -148,15 +148,15 @@ import functools
 from typing import Callable
 from typing import Any
 
-from pyppy.config import config
-from pyppy.exc import ConditionRaisedException, ConditionDidNotReturnBooleansException
-from pyppy.utils import _check_is_bool
+from pyppy import config
+from pyppy.utils.exception import ConditionRaisedException, ConditionDidNotReturnBooleansException
+from pyppy.utils.data_type import _check_is_bool
 
 
 def _evaluate_condition_func(single_condition: Callable[[object], bool]) -> bool:
     """
-    Evaluates a condition function based on the state
-    of the global config.
+    Evaluates a condition function based on the state_
+    of the global config_.
     """
 
     try:
@@ -175,7 +175,7 @@ def _evaluate_condition_func(single_condition: Callable[[object], bool]) -> bool
 class Exp:  # pylint: disable=R0903
     """
     Class that represents a boolean logic based on the global
-    config. On creation, a condition or keyword arguments are
+    config_. On creation, a condition or keyword arguments are
     given (mutually exclusive). When an instantiated object of this
     class is called, the boolean logic is evaluate.
 
@@ -183,27 +183,27 @@ class Exp:  # pylint: disable=R0903
     ----------
     condition_func : Callable
         A function expecting exactly one parameter which
-        is the global config and returns a boolean value when it is
+        is the global config_ and returns a boolean value when it is
         called. Mutually exclusive with the ``kwargs`` parameter.
     kwargs :
         Keyword argument representing an exact match between the
         given value for the argument and the value of the corresponding attribute
-        in the global config. For example, specifying ``debug="WARN"`` as keyword
+        in the global config_. For example, specifying ``debug="WARN"`` as keyword
         argument means that calling this object should return ``True`` when the
-        value of the attribute ``debug`` in the global config is ``True``.
+        value of the attribute ``debug`` in the global config_ is ``True``.
         Only EXACTLY ONE keyword argument is allowed. Mutually exclusive
         with the parameter ``condition_func``.
 
     Examples
     --------
-    >>> from pyppy.config import initialize_config, destroy_config
+    >>> from pyppy.config_ import initialize_config, destroy_config
     >>> from types import SimpleNamespace
-    >>> from pyppy.config import config
+    >>> from pyppy.config_ import config_
     >>> destroy_config()
     >>> c = SimpleNamespace()
     >>> c.log_level = "WARN"
     >>> initialize_config(c)
-    >>> config().log_level
+    >>> config_().log_level
     'WARN'
 
     >>> exp = Exp(log_level="WARN")
@@ -255,8 +255,8 @@ def condition(exp: Callable[[], bool]) -> Callable[[Any], Any]:
     exp : Callable
         A callable that returns ``True`` or ``False`` when called. You can
         pass whatever function you like but in the context of `pyppy` the
-        function will almost always be dependent on the state of the
-        global config object.
+        function will almost always be dependent on the state_ of the
+        global config_ object.
     Returns
     -------
     Callable:
@@ -266,7 +266,7 @@ def condition(exp: Callable[[], bool]) -> Callable[[Any], Any]:
     Examples
     --------
     >>> from pyppy.conditions import Exp, condition
-    >>> from pyppy.config import initialize_config, destroy_config
+    >>> from pyppy.config_ import initialize_config, destroy_config
     >>> import types
 
     >>> destroy_config()
@@ -333,7 +333,7 @@ def and_(*exps: Callable[[], bool]) -> Callable[[], bool]:
     Examples
     --------
     >>> from pyppy.conditions import Exp, condition
-    >>> from pyppy.config import initialize_config, destroy_config
+    >>> from pyppy.config_ import initialize_config, destroy_config
     >>> import types
 
     >>> destroy_config()
@@ -387,7 +387,7 @@ def or_(*exps: Callable[[], bool]) -> Callable[[], bool]:
     Examples
     --------
     >>> from pyppy.conditions import Exp, condition
-    >>> from pyppy.config import initialize_config, destroy_config
+    >>> from pyppy.config_ import initialize_config, destroy_config
     >>> import types
 
     >>> destroy_config()

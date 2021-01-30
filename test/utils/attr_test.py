@@ -2,9 +2,9 @@
 Think about not allowing to set attrs
 """
 
-from pyppy.config import initialize_config, config, destroy_config
-from pyppy.use_config import Attr
-from test.testcase import TestCase
+from pyppy import initialize_config, config, destroy_config
+from pyppy.config_.use_config import Attr
+from test.utils.testcase import TestCase
 
 
 class AttrTest(TestCase):

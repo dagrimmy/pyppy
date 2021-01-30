@@ -1,6 +1,6 @@
-from pyppy.state import initialize_state, state, destroy_state
-from pyppy.use_state import use_state
-from test.testcase import TestCase
+from pyppy import initialize_state, state, destroy_state
+from pyppy.state_.use_state import use_state
+from test.utils.testcase import TestCase
 
 
 class UseStateTest(TestCase):

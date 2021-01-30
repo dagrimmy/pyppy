@@ -2,8 +2,8 @@ import functools
 from collections import Callable
 from typing import List
 
-from pyppy.exc import UnexpectedNumberOfReturnsException
-from pyppy.state import state
+from pyppy.utils.exception import UnexpectedNumberOfReturnsException
+from pyppy import state
 
 
 def return_to_state(arg_names: List[str], args_to_return_to_state: List[int] = None) -> Callable:

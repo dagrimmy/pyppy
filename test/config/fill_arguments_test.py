@@ -1,8 +1,8 @@
-from pyppy.args import fill_args
-from pyppy.config import destroy_config
-from pyppy.exc import FunctionSignatureNotSupportedException, OnlyKeywordArgumentsAllowedException
-from test.testcase import TestCase
-from test.testing import fake_config
+from pyppy.config_.args import fill_args
+from pyppy import destroy_config
+from pyppy.utils.exception import FunctionSignatureNotSupportedException, OnlyKeywordArgumentsAllowedException
+from test.utils.testcase import TestCase
+from test.utils.testing import fake_config
 
 DEFAULT_ARG_DICT = {
     "arg1": "val1",

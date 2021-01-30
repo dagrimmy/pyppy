@@ -1,5 +1,5 @@
-from pyppy.args import fill_args
-from pyppy.config import initialize_config, config
+from pyppy.config_.args import fill_args
+from pyppy.config_ import initialize_config, config
 
 initialize_config()
 config().debug = True

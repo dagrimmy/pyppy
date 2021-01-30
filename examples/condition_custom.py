@@ -1,5 +1,5 @@
 from pyppy.conditions import Exp, condition
-from pyppy.config import initialize_config, config
+from pyppy.config_ import initialize_config, config
 import types
 
 args = types.SimpleNamespace()

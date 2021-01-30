@@ -1,7 +1,7 @@
 """Automatic Argument Filling from State
 
 Contains a decorator generator that allows to automatically fill
-function arguments based on attributes of the global state created
+function arguments based on attributes of the global state_ created
 with ``initialize_state(obj)``.
 
 General Example
@@ -10,7 +10,7 @@ Sounds too abstract? Here's an example::
 
     from argparse import ArgumentParser
     from pyppy.args import fill_args
-    from pyppy.state import initialize_state
+    from pyppy.state_ import initialize_state
 
     parser = ArgumentParser()
     parser.add_argument(
@@ -41,9 +41,9 @@ be ``True`` otherwise ``False``. The ``ArgumentParser`` will return
 an ``argparse.Namespace`` object that holds an attribute ``debug``
 with the corresponding value.
 
-Then, we initialize our state with the returned ``Namespace`` object.
-This will register a global state that we can access by calling
-``pyppy.state.state()``. So, calling ``state().debug``
+Then, we initialize our state_ with the returned ``Namespace`` object.
+This will register a global state_ that we can access by calling
+``pyppy.state_.state_()``. So, calling ``state_().debug``
 will result in ``True``.
 
 
@@ -53,16 +53,16 @@ on the attributes of the global stateuration we just registered. For
 this, we use the decorator generator ``fill_args`` that will, when called,
 return a function generator able to fill the arguments of the function.
 It will look for parameters in the function's definition that have the
-same name as attributes of the global state. In this case we have
+same name as attributes of the global state_. In this case we have
 an exact match between ``debug`` in the function parameters and the
 global stateuration attribute ``debug``. So, when executing the function
 ``log_debug`` we don't have to provide debug because it has already assigned
-an value equal to the attribute's value in the global state.```
+an value equal to the attribute's value in the global state_.```
 
 When calling ``log_debug``, we have to provide the ``message`` argument
 as keyword argument (this is currently necessary; we're working on
 allowing positional parameters too...). That's it. You can use this
-for whatever parameters you want to be filled from the global state.
+for whatever parameters you want to be filled from the global state_.
 
 Explicit Argument Filling
 -------------------------
@@ -70,7 +70,7 @@ Explicit Argument Filling
 There are cases where you might not want ``fill_args``  to
 automatically detect the arguments to be filled for you. In these
 cases, you can tell ``fill_args`` explicitly which arguments you
-want to fill from the state::
+want to fill from the state_::
 
     @fill_args("debug")
     def log_debug(debug, message):
@@ -95,8 +95,8 @@ import functools
 from inspect import signature
 from typing import Callable, Any
 
-from pyppy.state import state
-from pyppy.exc import (
+from pyppy import state
+from pyppy.utils.exception import (
     FunctionSignatureNotSupportedException,
     OnlyKeywordArgumentsAllowedException,
     IllegalStateException,
@@ -132,8 +132,8 @@ def _check_func_signature_supported(func: Callable) -> None:
 def fill_state_args(*args_to_be_filled: str) -> Callable:
     """
     Returns a function decorator that automatically fills function
-    arguments based on the global state object attributes. Function arguments
-    that have the same name as an attribute of the global state will
+    arguments based on the global state_ object attributes. Function arguments
+    that have the same name as an attribute of the global state_ will
     be automatically filled with the corresponding value when the
     decorated function is executed.
 
@@ -153,14 +153,13 @@ def fill_state_args(*args_to_be_filled: str) -> Callable:
 
     Examples
     --------
-    >>> from pyppy.state import initialize_state, destroy_state
+    >>> from pyppy.container import state_    >>> from pyppy.state_ import initialize_state, destroy_state
     >>> from types import SimpleNamespace
-    >>> from pyppy.state import state
     >>> destroy_state()
     >>> c = SimpleNamespace()
     >>> c.debug_level = "WARN"
     >>> initialize_state(c)
-    >>> state().debug_level
+    >>> state_().debug_level
     'WARN'
     >>> @fill_args()
     ... def debug(debug_level, message):
@@ -174,7 +173,7 @@ def fill_state_args(*args_to_be_filled: str) -> Callable:
         """
         Function decorator that takes a function and return a new
         function that will, when executed, fill arguments of the
-        original function based on their value in the global state.
+        original function based on their value in the global state_.
 
         Currently specific function signatures are supported.
         The decorator checks if a function signature is supported
@@ -189,17 +188,17 @@ def fill_state_args(*args_to_be_filled: str) -> Callable:
             """
             Wrapper around the original function. This function checks
             if arguments of the original function have the same name
-            as attributes of the global state.
+            as attributes of the global state_.
 
             If the arguments to be filled have been set explicitly
             in the fill_args function only the corresponding arguments
             are checked.
 
             If arguments are declared a arguments to be filled but are
-            not present in the global state object it is still
+            not present in the global state_ object it is still
             possible to provide them as keyword argument on function
             execution. If the corresponding arguments are not filled
-            from the state and not provided on function execution
+            from the state_ and not provided on function execution
             an exception is raised.
             """
             for name, _ in sig.parameters.items():
@@ -225,9 +224,9 @@ def fill_state_args(*args_to_be_filled: str) -> Callable:
                 if value is _UNSET_VALUE:
                     raise IllegalStateException(
                         f"\n\tArgument {name} was not present in the global \n\t"
-                        f"state and was not provided as keyword argument when \n\t"
+                        f"state_ and was not provided as keyword argument when \n\t"
                         f"the function {func} was executed. Please make sure \n\t"
-                        f"needed arguments are either provided within the state \n\t"
+                        f"needed arguments are either provided within the state_ \n\t"
                         f"or when running a {fill_state_args.__name__}-decorated function."
                     )
 

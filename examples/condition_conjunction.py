@@ -1,7 +1,7 @@
 from pyppy.conditions import condition, Exp, and_
 import types
 
-from pyppy.config import initialize_config, config
+from pyppy.config_ import initialize_config, config
 
 args = types.SimpleNamespace()
 args.log_level = "WARN"

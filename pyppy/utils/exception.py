@@ -3,16 +3,9 @@ Contains exceptions for pyppy.
 """
 
 
-class ConfigAlreadyInitializedException(Exception):
+class AlreadyInitializedException(Exception):
     """
-    Exception indicating that a global config has already
-    been initialized.
-    """
-
-
-class StateAlreadyInitializedException(Exception):
-    """
-    Exception indicating that a global config has already
+    Exception indicating that a global config_ has already
     been initialized.
     """
 
@@ -55,6 +48,6 @@ class IllegalStateException(Exception):
 
 class UnexpectedNumberOfReturnsException(Exception):
     """
-    Exception indicating that a global config has already
+    Exception indicating that a global config_ has already
     been initialized.
     """

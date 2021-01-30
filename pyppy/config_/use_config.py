@@ -3,7 +3,7 @@
 """
 from typing import Type
 
-from pyppy.config import config
+from pyppy import config
 
 
 class Attr:

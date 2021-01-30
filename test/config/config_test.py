@@ -1,8 +1,8 @@
 from argparse import ArgumentParser, Namespace
 
-from pyppy.config import initialize_config, config, destroy_config
-from pyppy.exc import ConfigAlreadyInitializedException
-from test.testcase import TestCase
+from pyppy import initialize_config, config, destroy_config
+from pyppy.utils.exception import AlreadyInitializedException
+from test.utils.testcase import TestCase
 
 
 class ConfigTest(TestCase):
@@ -26,7 +26,7 @@ class ConfigTest(TestCase):
         namespace.tmp = "tmp"
         initialize_config(namespace)
 
-        with self.assertRaises(ConfigAlreadyInitializedException):
+        with self.assertRaises(AlreadyInitializedException):
             initialize_config(Namespace())
 
         self.assertEqual(namespace, config())
