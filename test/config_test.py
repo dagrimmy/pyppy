@@ -5,7 +5,7 @@ from pyppy.exc import ConfigAlreadyInitializedException
 from test.testcase import TestCase
 
 
-class ContainerTest(TestCase):
+class ConfigTest(TestCase):
 
     def setUp(self) -> None:
         destroy_config()

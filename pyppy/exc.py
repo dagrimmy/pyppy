@@ -10,6 +10,13 @@ class ConfigAlreadyInitializedException(Exception):
     """
 
 
+class StateAlreadyInitializedException(Exception):
+    """
+    Exception indicating that a global config has already
+    been initialized.
+    """
+
+
 class MissingConfigParamException(Exception):
     """
     MissingConfigParamException
