@@ -1,7 +1,7 @@
 from argparse import Namespace
 
 from pyppy.utils.exception import UnexpectedNumberOfReturnsException
-from pyppy.state_.return_to_state import return_to_state
+from pyppy.state_mgmt.return_to_state import return_to_state
 from pyppy import destroy_state, initialize_state, state
 from test.utils.testcase import TestCase
 

@@ -87,27 +87,3 @@ def _destroy(type_: ContainerType):
         raise ValueError(
             f"Please give a valid {ContainerType.__name__}."
         )
-
-
-def initialize_config(obj_: object = SimpleNamespace()):
-    _initialize(obj_, ContainerType.CONFIG)
-
-
-def initialize_state(obj_: object = SimpleNamespace()):
-    _initialize(obj_, ContainerType.STATE)
-
-
-def config():
-    return _get(ContainerType.CONFIG)
-
-
-def state():
-    return _get(ContainerType.STATE)
-
-
-def destroy_config():
-    _destroy(ContainerType.CONFIG)
-
-
-def destroy_state():
-    _destroy(ContainerType.STATE)

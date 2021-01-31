@@ -1,4 +1,4 @@
-from pyppy.config_.args import fill_args
+from pyppy import fill_args_from_config
 from pyppy import destroy_config
 from pyppy.utils.exception import FunctionSignatureNotSupportedException, OnlyKeywordArgumentsAllowedException
 from test.utils.testcase import TestCase
@@ -33,7 +33,7 @@ class FillArgumentsTest(TestCase):
 
     def test_fill_one_arg(self):
         with fake_config(**DEFAULT_ARG_DICT):
-            @fill_args()
+            @fill_args_from_config()
             def tmp(arg1):
                 return arg1
 
@@ -41,7 +41,7 @@ class FillArgumentsTest(TestCase):
 
     def test_fill_two_args(self):
         with fake_config(**DEFAULT_ARG_DICT):
-            @fill_args()
+            @fill_args_from_config()
             def tmp(arg1, arg2):
                 return arg1, arg2
 
@@ -50,7 +50,7 @@ class FillArgumentsTest(TestCase):
 
     def test_fill_outer_args(self):
         with fake_config(**DEFAULT_ARG_DICT):
-            @fill_args("arg1", "arg3")
+            @fill_args_from_config("arg1", "arg3")
             def tmp(arg1, arg2, arg3):
                 return arg1, arg2, arg3
 
@@ -62,7 +62,7 @@ class FillArgumentsTest(TestCase):
 
     def test_fill_nonexistent_config_param(self):
         with fake_config(**DEFAULT_ARG_DICT):
-            @fill_args()
+            @fill_args_from_config()
             def tmp(arg1, tmp_arg, arg3):
                 return arg1, tmp_arg, arg3
 
@@ -74,7 +74,7 @@ class FillArgumentsTest(TestCase):
 
     def test_fill_positional_arg(self):
         with fake_config(**DEFAULT_ARG_DICT):
-            @fill_args("arg3")
+            @fill_args_from_config("arg3")
             def tmp2(arg3, arg4="blabla"):
                 return arg3, arg4
             self.assertEqual(tmp2(), (
@@ -88,7 +88,7 @@ class FillArgumentsTest(TestCase):
 
     def test_fill_keyword_arg(self):
         with fake_config(**DEFAULT_ARG_DICT):
-            @fill_args("arg4")
+            @fill_args_from_config("arg4")
             def tmp3(arg3, arg4="blabla"):
                 return arg3, arg4
 
@@ -99,7 +99,7 @@ class FillArgumentsTest(TestCase):
 
     def test_fill_keyword_arg_2(self):
         with fake_config(**DEFAULT_ARG_DICT):
-            @fill_args("arg4")
+            @fill_args_from_config("arg4")
             def tmp4(arg3="tmp", arg4="blabla"):
                 return arg3, arg4
 
@@ -110,7 +110,7 @@ class FillArgumentsTest(TestCase):
 
     def test_fill_correct_types(self):
         with fake_config(**MIXED_TYPE_ARG_DICT):
-            @fill_args()
+            @fill_args_from_config()
             def tmp(arg1, arg2, arg3, arg4):
                 return arg1, arg2, arg3, arg4
 
@@ -122,7 +122,7 @@ class FillArgumentsTest(TestCase):
 
     def test_overwrite_defaults(self):
         with fake_config(**DEFAULT_ARG_DICT):
-            @fill_args()
+            @fill_args_from_config()
             def tmp(arg1="tmp1", arg2="tmp2", arg3="tmp3", arg4="tmp4"):
                 return arg1, arg2, arg3, arg4
 
@@ -135,7 +135,7 @@ class FillArgumentsTest(TestCase):
 
     def test_positional_args_raise(self):
         with fake_config(**DEFAULT_ARG_DICT):
-            @fill_args()
+            @fill_args_from_config()
             def tmp(arg1, arg2="tmp"):
                 return arg1, arg2
 
@@ -146,7 +146,7 @@ class FillArgumentsTest(TestCase):
 
     def test_overwrite_filled_arguments(self):
         with fake_config(**DEFAULT_ARG_DICT):
-            @fill_args()
+            @fill_args_from_config()
             def tmp(arg1="tmp1", arg2="tmp2", arg3="tmp3", arg4="tmp4"):
                 return arg1, arg2, arg3, arg4
 
@@ -159,20 +159,20 @@ class FillArgumentsTest(TestCase):
     def test_raise_positional_only_args(self):
         with fake_config(**DEFAULT_ARG_DICT):
             with self.assertRaises(FunctionSignatureNotSupportedException):
-                @fill_args("arg3", "arg4")
+                @fill_args_from_config("arg3", "arg4")
                 def tmp4(x, y, /, arg3, arg4="blabla"):
                     return x, y, arg3, arg4
 
     def test_raise_keyword_only(self):
         with fake_config(**DEFAULT_ARG_DICT):
             with self.assertRaises(FunctionSignatureNotSupportedException):
-                @fill_args()
+                @fill_args_from_config()
                 def tmp4(arg1, *args, arg4="blabla"):
                     return arg1, args, arg4
 
     def test_raise_var_keyword(self):
         with fake_config(**DEFAULT_ARG_DICT):
             with self.assertRaises(FunctionSignatureNotSupportedException):
-                @fill_args()
+                @fill_args_from_config()
                 def tmp4(arg1, **kwargs):
                     return arg1, kwargs

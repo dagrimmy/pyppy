@@ -6,7 +6,7 @@ Cases:
 """
 
 from pyppy import initialize_config, config, destroy_config
-from pyppy.config_.use_config import use_config
+from pyppy.attr_filling.use_config import use_config
 from test.utils.testcase import TestCase
 
 

@@ -3,7 +3,7 @@ Think about not allowing to set attrs
 """
 
 from pyppy import initialize_config, config, destroy_config
-from pyppy.config_.use_config import Attr
+from pyppy.attr_filling.use_config import Attr
 from test.utils.testcase import TestCase
 
 

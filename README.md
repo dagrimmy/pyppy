@@ -70,7 +70,7 @@ function arguments from the global config object. If a function argument has the
 as an attribute of your config it will automatically be filled with the corresponding value.
 (We're assuming here you have initialized the same config as in the last example.)
 ```python
-from pyppy.config_.args import fill_args
+from pyppy.arg_filling.args import fill_args
 
 initialize_config()
 config().debug = True
@@ -210,3 +210,5 @@ contributor.
 
 ## TODO
 * Decorator stacking test (order; does it work?)
+* Check in arg filling methods if state/container have same attributes and give a
+warning?
