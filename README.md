@@ -212,3 +212,7 @@ contributor.
 * Decorator stacking test (order; does it work?)
 * Check in arg filling methods if state/container have same attributes and give a
 warning?
+* When a user uses use_state on a class and sets an attribute that was set via use_state
+the overridden attribute should be reflected in the global state()
+* Make decisions (decide which function to execute) with a decorator that allows to 
+choose a path based on config and state  

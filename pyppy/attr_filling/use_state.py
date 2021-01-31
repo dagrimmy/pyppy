@@ -1,15 +1,12 @@
 from typing import Type
 
 from pyppy import state
+from pyppy.attr_filling.attr import Attr
 
 
-class Attr:
+class StateAttr(Attr):
 
-    def __init__(self, attr_name):
-        self._attr_name = attr_name
-
-    def __get__(self, obj, obj_type=None):
-        return getattr(state(), self._attr_name)
+    _container = state
 
 
 def use_state(*used_state_attributes: str):
@@ -19,7 +16,7 @@ def use_state(*used_state_attributes: str):
             setattr(
                 decorated_class,
                 attr,
-                Attr("param_1")
+                StateAttr(attr)
             )
         return decorated_class
 

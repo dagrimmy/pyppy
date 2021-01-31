@@ -153,26 +153,7 @@ from pyppy.utils.exception import ConditionRaisedException, ConditionDidNotRetur
 from pyppy.utils.data_type import _check_is_bool
 
 
-def _evaluate_condition_func(single_condition: Callable[[object], bool]) -> bool:
-    """
-    Evaluates a condition function based on the state_
-    of the global config_.
-    """
-
-    try:
-        conf_value = single_condition(config())
-    except Exception as exc:  # pylint: disable=W0703
-        raise ConditionRaisedException from exc
-
-    if _check_is_bool(conf_value):
-        return conf_value
-
-    raise ConditionDidNotReturnBooleansException(
-        "The condition did not return a valid boolean!"
-    )
-
-
-class Exp:  # pylint: disable=R0903
+class _Exp:  # pylint: disable=R0903
     """
     Class that represents a boolean logic based on the global
     config_. On creation, a condition or keyword arguments are
@@ -196,9 +177,9 @@ class Exp:  # pylint: disable=R0903
 
     Examples
     --------
-    >>> from pyppy.config_ import initialize_config, destroy_config
+    >>> from pyppy import initialize_config, destroy_config
     >>> from types import SimpleNamespace
-    >>> from pyppy.config_ import config_
+    >>> from pyppy import config
     >>> destroy_config()
     >>> c = SimpleNamespace()
     >>> c.log_level = "WARN"
@@ -206,30 +187,32 @@ class Exp:  # pylint: disable=R0903
     >>> config_().log_level
     'WARN'
 
-    >>> exp = Exp(log_level="WARN")
+    >>> exp = _Exp(log_level="WARN")
     >>> exp()
     True
 
-    >>> exp = Exp(log_level="INFO")
+    >>> exp = _Exp(log_level="INFO")
     >>> exp()
     False
 
-    >>> exp = Exp(condition_func=lambda c: c.log_level == "WARN")
+    >>> exp = _Exp(condition_func=lambda c: c.log_level == "WARN")
     >>> exp()
     True
 
-    >>> exp = Exp(condition_func=lambda c: c.log_level == "INFO")
+    >>> exp = _Exp(condition_func=lambda c: c.log_level == "INFO")
     >>> exp()
     False
     """
+
+    _container = None
 
     def __init__(self, condition_func=None, **kwargs):
         self._single_condition = condition_func
         self._kwargs = kwargs
 
     def __call__(self):
-        if self._single_condition:
-            return _evaluate_condition_func(self._single_condition)
+        if self._single_condition is not None:
+            return self._evaluate_condition_func(self._single_condition)
 
         if len(self._kwargs) > 1:
             raise Exception("Only one key value pair allowed")
@@ -242,6 +225,25 @@ class Exp:  # pylint: disable=R0903
             return True
 
         return False
+
+    @classmethod
+    def _evaluate_condition_func(cls, single_condition: Callable[[object], bool]) -> bool:
+        """
+        Evaluates a condition function based on the state_
+        of the global config_.
+        """
+
+        try:
+            conf_value = single_condition(cls._container())
+        except Exception as exc:  # pylint: disable=W0703
+            raise ConditionRaisedException from exc
+
+        if _check_is_bool(conf_value):
+            return conf_value
+
+        raise ConditionDidNotReturnBooleansException(
+            "The condition did not return a valid boolean!"
+        )
 
 
 def condition(exp: Callable[[], bool]) -> Callable[[Any], Any]:
@@ -265,7 +267,7 @@ def condition(exp: Callable[[], bool]) -> Callable[[Any], Any]:
 
     Examples
     --------
-    >>> from pyppy.conditions import Exp, condition
+    >>> from pyppy import Exp, condition
     >>> from pyppy.config_ import initialize_config, destroy_config
     >>> import types
 
@@ -274,14 +276,14 @@ def condition(exp: Callable[[], bool]) -> Callable[[Any], Any]:
     >>> args.log_level = "WARN_LEVEL_1"
     >>> initialize_config(args)
 
-    >>> @condition(Exp(lambda c: c.log_level.startswith("WARN")))
+    >>> @condition(_Exp(lambda c: c.log_level.startswith("WARN")))
     ... def log_warn():
     ...     print("WARNING")
 
     >>> log_warn()
     WARNING
 
-    >>> @condition(Exp(log_level="WARN_LEVEL_1"))
+    >>> @condition(_Exp(log_level="WARN_LEVEL_1"))
     ... def log_warn():
     ...     print("WARNING")
 
@@ -344,8 +346,8 @@ def and_(*exps: Callable[[], bool]) -> Callable[[], bool]:
 
     >>> @condition(
     ...     and_(
-    ...         Exp(log_level="WARN"),
-    ...         Exp(specific_log_level="LEVEL_1"),
+    ...         _Exp(log_level="WARN"),
+    ...         _Exp(specific_log_level="LEVEL_1"),
     ...     )
     ... )
     ... def log_warn_level_1():
@@ -397,8 +399,8 @@ def or_(*exps: Callable[[], bool]) -> Callable[[], bool]:
 
     >>> @condition(
     ...     or_(
-    ...         Exp(log_level="WARN"),
-    ...         Exp(log_level="INFO"),
+    ...         _Exp(log_level="WARN"),
+    ...         _Exp(log_level="INFO"),
     ...     )
     ... )
     ... def log_debug():

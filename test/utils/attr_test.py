@@ -3,7 +3,7 @@ Think about not allowing to set attrs
 """
 
 from pyppy import initialize_config, config, destroy_config
-from pyppy.attr_filling.use_config import Attr
+from pyppy.attr_filling.use_config import Attr, ConfigAttr
 from test.utils.testcase import TestCase
 
 
@@ -18,7 +18,7 @@ class AttrTest(TestCase):
 
         class TestClass:
 
-            attr = Attr("attr")
+            attr = ConfigAttr("attr")
 
         instance_1 = TestClass()
         self.assertEqual(instance_1.attr, "val")
@@ -33,11 +33,11 @@ class AttrTest(TestCase):
         config().attr = "val"
 
         class TestClass:
-            attr = Attr("attr")
+            attr = ConfigAttr("attr")
 
         instance_1 = TestClass()
         instance_1.attr = "tmp"
 
         self.assertEqual(instance_1.attr, "tmp")
-        self.assertEqual(TestClass.attr, "val")
-        self.assertEqual(config().attr, "val")
+        self.assertEqual(TestClass.attr, "tmp")
+        self.assertEqual(config().attr, "tmp")

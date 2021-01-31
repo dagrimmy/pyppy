@@ -4,15 +4,11 @@
 from typing import Type
 
 from pyppy import config
+from pyppy.attr_filling.attr import Attr
 
 
-class Attr:
-
-    def __init__(self, attr_name):
-        self._attr_name = attr_name
-
-    def __get__(self, obj, obj_type=None):
-        return getattr(config(), self._attr_name)
+class ConfigAttr(Attr):
+    _container = config
 
 
 def use_config(*used_config_attributes: str):
@@ -22,7 +18,7 @@ def use_config(*used_config_attributes: str):
             setattr(
                 decorated_class,
                 attr,
-                Attr("param_1")
+                ConfigAttr(attr)
             )
         return decorated_class
 
