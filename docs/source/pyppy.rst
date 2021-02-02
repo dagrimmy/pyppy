@@ -1,16 +1,17 @@
 pyppy package
 =============
 
-Submodules
-----------
+Subpackages
+-----------
 
 .. toctree::
    :maxdepth: 4
 
-   pyppy.args
+   pyppy.arg_filling
+   pyppy.attr_filling
    pyppy.conditions
-   pyppy.config
-   pyppy.exc
+   pyppy.container
+   pyppy.state_mgmt
    pyppy.utils
 
 Module contents

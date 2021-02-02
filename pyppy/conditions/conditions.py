@@ -148,7 +148,7 @@ import functools
 from typing import Callable
 from typing import Any
 
-from pyppy import config
+from pyppy.container.config import config
 from pyppy.utils.exception import ConditionRaisedException, ConditionDidNotReturnBooleansException
 from pyppy.utils.data_type import _check_is_bool
 
@@ -234,7 +234,7 @@ class _Exp:  # pylint: disable=R0903
         """
 
         try:
-            conf_value = single_condition(cls._container())
+            conf_value = single_condition(cls._container())  # pylint: disable=E1102
         except Exception as exc:  # pylint: disable=W0703
             raise ConditionRaisedException from exc
 

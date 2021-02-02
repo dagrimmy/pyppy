@@ -1,12 +1,19 @@
+"""
+TODO
+"""
+
 import functools
 from typing import Callable
 from typing import List
 
 from pyppy.utils.exception import UnexpectedNumberOfReturnsException
-from pyppy import state
+from pyppy.container.state import state
 
 
 def return_to_state(arg_names: List[str], args_to_return_to_state: List[int] = None) -> Callable:
+    """
+    TODO
+    """
 
     def return_to_state_decorator(func: Callable) -> Callable:
 
@@ -23,8 +30,8 @@ def return_to_state(arg_names: List[str], args_to_return_to_state: List[int] = N
                 raise UnexpectedNumberOfReturnsException(
                     (f"The given arg_names {arg_names} have length of {len(arg_names)} but the "
                      f"function decorated with {return_to_state.__name__} returned "
-                     f"{len(tuple_original_func_return)} value(s).\n Please make sure the decorated "
-                     f"function always returns the correct number of values.")
+                     f"{len(tuple_original_func_return)} value(s).\n Please make sure "
+                     f"the decorated function always returns the correct number of values.")
                 )
 
             if args_to_return_to_state is None:
@@ -36,7 +43,7 @@ def return_to_state(arg_names: List[str], args_to_return_to_state: List[int] = N
                 try:
                     return_val = tuple_original_func_return[idx]
                 except IndexError:
-                    raise IndexError(
+                    raise IndexError from IndexError(
                         (f"Index {idx} is out of range for the returned values of the "
                          f"function decorated with return_to_state.\n The function returned "
                          f"{len(tuple_original_func_return)} values. Please make sure the "

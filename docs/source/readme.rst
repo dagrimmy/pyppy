@@ -22,7 +22,7 @@ Table of Contents
 -----------------
 
 
-* `What Is It? <#what-is-it>`_
+* `Usecases <#usecases>`_
 * `Global Config Object <#global-config-object>`_
 * `Automatic Argument Filling from Config Object <#automatic-argument-filling-from-config-object>`_
 
@@ -61,7 +61,7 @@ that has attributes to initialize a config.
 .. code-block:: python
 
    from argparse import ArgumentParser
-   from pyppy.config import initialize_config, config
+   from pyppy.config_ import initialize_config, config
 
    parser = ArgumentParser()
    parser.add_argument(
@@ -85,17 +85,19 @@ that has attributes to initialize a config.
 Automatic Argument Filling from Config Object
 ---------------------------------------------
 
+More here: https://pyppy.readthedocs.io/en/latest/pyppy.args.html
+
 Automatic Detection of Arguments to be Filled
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-It gets even better. You can use the ``@fill_arguments`` decorator to automatically fill
+It gets even better. You can use the ``@fill_args`` decorator to automatically fill
 function arguments from the global config object. If a function argument has the same name 
 as an attribute of your config it will automatically be filled with the corresponding value.
 (We're assuming here you have initialized the same config as in the last example.)
 
 .. code-block:: python
 
-   from pyppy.args import fill_args
+   from pyppy.arg_filling.args import fill_args
 
    initialize_config()
    config().debug = True
@@ -118,8 +120,7 @@ can then only be passed as keyword arguments when calling the function.
 
 .. code-block:: python
 
-   from pyppy.args import fill_args
-   from pyppy.config import initialize_config, config
+   from pyppy.config_ import initialize_config, config
 
    initialize_config()
    config().debug = True
@@ -156,6 +157,8 @@ parameters that are explicitly passed.
 
 Conditional Execution of Functions based on Global Config State
 ---------------------------------------------------------------
+
+More here: https://pyppy.readthedocs.io/en/latest/pyppy.conditions.html
 
 Exact Value Matching
 ^^^^^^^^^^^^^^^^^^^^
@@ -222,6 +225,8 @@ to be true you can use ``or_`` and ``and_`` to build the logic around them. ``or
 
 .. code-block:: python
 
+   from pyppy.conditions import condition, Exp, and_
+
    initialize_config()
    config().log_level = "WARN"
    config().specific_log_level = "LEVEL_1"
@@ -232,7 +237,6 @@ to be true you can use ``or_`` and ``and_`` to build the logic around them. ``or
            Exp(specific_log_level="LEVEL_1")
        )
    )
-
    def log_warn_level_1():
        return "WARNING LEVEL 1"
 
@@ -254,3 +258,15 @@ Contribution
 
 Feel free to create pull requests or contact me if you want to become a permanent 
 contributor. 
+
+TODO
+----
+
+
+* Decorator stacking test (order; does it work?)
+* Check in arg filling methods if state/container have same attributes and give a
+  warning?
+* When a user uses use_state on a class and sets an attribute that was set via use_state
+  the overridden attribute should be reflected in the global state()
+* Make decisions (decide which function to execute) with a decorator that allows to 
+  choose a path based on config and state  
