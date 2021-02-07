@@ -3,12 +3,10 @@ TODO
 """
 
 import functools
-from enum import Enum
 from inspect import signature
 from typing import Callable, Any
 
-from pyppy.container.config import config
-from pyppy.container.state import state
+from pyppy.container import get
 from pyppy.utils.exception import (
     FunctionSignatureNotSupportedException,
     OnlyKeywordArgumentsAllowedException,
@@ -42,13 +40,7 @@ def _check_func_signature_supported(func: Callable) -> None:
             )
 
 
-class _ArgFillingType(Enum):
-
-    CONFIG = "config"
-    STATE = "state"
-
-
-def fill_args_factory(type_: _ArgFillingType) -> Callable:
+def fill_args_factory(container_name: str) -> Callable:
     """
     TODO
     """
@@ -60,7 +52,6 @@ def fill_args_factory(type_: _ArgFillingType) -> Callable:
             Function decorator that takes a function and return a new
             function that will, when executed, fill arguments of the
             original function based on their value in the global config_.
-
             Currently specific function signatures are supported.
             The decorator checks if a function signature is supported
             and raises an exception otherwise.
@@ -75,11 +66,9 @@ def fill_args_factory(type_: _ArgFillingType) -> Callable:
                 Wrapper around the original function. This function checks
                 if arguments of the original function have the same name
                 as attributes of the global config_.
-
                 If the arguments to be filled have been set explicitly
                 in the fill_args function only the corresponding arguments
                 are checked.
-
                 If arguments are declared a arguments to be filled but are
                 not present in the global config_ object it is still
                 possible to provide them as keyword argument on function
@@ -90,14 +79,7 @@ def fill_args_factory(type_: _ArgFillingType) -> Callable:
                 for name, _ in sig.parameters.items():
                     if name in args_to_be_filled or len(args_to_be_filled) == 0:
                         try:
-                            if type_ == _ArgFillingType.CONFIG:
-                                value = getattr(config(), name)
-                            elif type_ == _ArgFillingType.STATE:
-                                value = getattr(state(), name)
-                            else:
-                                raise ValueError(
-                                    f"{_ArgFillingType.__name__} {type_} not supported."
-                                )
+                            value = getattr(get(container_name), name)
                         except AttributeError:
                             value = _UNSET_VALUE
                         filled_kwargs[name] = value
@@ -130,3 +112,15 @@ def fill_args_factory(type_: _ArgFillingType) -> Callable:
         return _fill_args_decorator
 
     return _fill_args
+
+
+class Fill:
+
+    """Kind of a fill_args factory"""
+
+    def __getattr__(self, name):
+        return fill_args_factory(name)
+
+
+fill = Fill()
+fill.__doc__ = """fill is shorthand for Fill()"""

@@ -216,3 +216,7 @@ warning?
 the overridden attribute should be reflected in the global state()
 * Make decisions (decide which function to execute) with a decorator that allows to 
 choose a path based on config and state  
+* Check how memory behaves when deleting containers (will objects still have references
+and garbage collected correctly?)
+* Logging of erroneous usage (overwrite of containers)?
+* Memory test: initialize a million containers and see how memory behaves and gets freed up
