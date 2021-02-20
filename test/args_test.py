@@ -1,9 +1,13 @@
 from pyppy.args import Fill, fill
+from pyppy.container import destroy_all
 from test.utils.fake_container import fake_container
 from test.utils.testcase import TestCase
 
 
 class ArgFillingTest(TestCase):
+
+    def setUp(self) -> None:
+        destroy_all()
 
     def test_arg_filling_all(self):
         container_name = "config"

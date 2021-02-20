@@ -7,8 +7,7 @@ from pyppy.container import initialize, get, destroy, _Container, destroy_all
 class TestContainer(TestCase):
 
     def setUp(self) -> None:
-        pass
-        #container.destroy_all()
+        destroy_all()
 
     def test_initialize_attr(self):
         container_obj = SimpleNamespace()
