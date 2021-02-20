@@ -1,4 +1,4 @@
-from pyppy.conditions import Exp, condition
+from pyppy.conditions import Exp, _condition
 from pyppy.config_ import initialize_config, config
 import types
 
@@ -6,7 +6,7 @@ args = types.SimpleNamespace()
 args.debug = False
 initialize_config(args)
 
-@condition(Exp(debug=True))
+@_condition(Exp(debug=True))
 def debug_log():
     return "hello"
 

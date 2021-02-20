@@ -1,4 +1,4 @@
-from pyppy.arg_filling.args import fill_args
+from pyppy.args.args import fill_args
 from pyppy.config_ import initialize_config, config
 
 initialize_config()

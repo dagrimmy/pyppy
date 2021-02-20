@@ -1,4 +1,4 @@
-from pyppy.conditions import Exp, condition
+from pyppy.conditions import Exp, _condition
 from pyppy.config_ import initialize_config, config
 import types
 
@@ -7,7 +7,7 @@ args.log_level = "WARN_LEVEL_1"
 
 initialize_config(args)
 
-@condition(Exp(lambda config: config.log_level.startswith("WARN")))
+@_condition(Exp(lambda config: config.log_level.startswith("WARN")))
 def log_warn():
     return "WARNING"
 

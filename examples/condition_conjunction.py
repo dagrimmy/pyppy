@@ -1,4 +1,4 @@
-from pyppy.conditions import condition, Exp, and_
+from pyppy.conditions import _condition, Exp, and_
 import types
 
 from pyppy.config_ import initialize_config, config
@@ -9,7 +9,7 @@ args.specific_log_level = "LEVEL_1"
 
 initialize_config(args)
 
-@condition(
+@_condition(
     and_(
         Exp(log_level="WARN"),
         Exp(specific_log_level="LEVEL_1")
