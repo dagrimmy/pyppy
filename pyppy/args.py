@@ -6,7 +6,7 @@ import functools
 from inspect import signature
 from typing import Callable, Any
 
-from pyppy.container import container
+from pyppy.container import get
 from pyppy.utils.exception import (
     FunctionSignatureNotSupportedException,
     OnlyKeywordArgumentsAllowedException,
@@ -79,7 +79,7 @@ def fill_args_factory(container_name: str) -> Callable:
                 for name, _ in sig.parameters.items():
                     if name in args_to_be_filled or len(args_to_be_filled) == 0:
                         try:
-                            value = getattr(container(container_name), name)
+                            value = getattr(get[container_name], name)
                         except AttributeError:
                             value = _UNSET_VALUE
                         filled_kwargs[name] = value

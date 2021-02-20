@@ -40,10 +40,10 @@ class Exp:  # pylint: disable=R0903
             raise Exception("Only one key value pair allowed")
         key, val = list(self._kwargs.items())[0]
 
-        if not hasattr(get(container_name), key):
+        if not hasattr(get[container_name], key):
             return False
 
-        if getattr(get(container_name), key) is val:  # pylint: disable=R1703
+        if getattr(get[container_name], key) is val:  # pylint: disable=R1703
             return True
 
         return False

@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from types import SimpleNamespace
 
-from pyppy.container import container
+from pyppy.container import initialize, destroy, destroy_all
 
 
 def _fake_container(name: str, **kwargs):
@@ -9,7 +9,7 @@ def _fake_container(name: str, **kwargs):
     for k, v in kwargs.items():
         setattr(namespace, k, v)
 
-    container[name].initialize(namespace)
+    initialize(name, namespace)
 
 
 @contextmanager
@@ -19,4 +19,4 @@ def fake_container(name, **kwargs):
     try:
         yield
     finally:
-        container.destroy_all()
+        destroy_all()
