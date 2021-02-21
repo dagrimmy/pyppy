@@ -1,7 +1,10 @@
-class TMP:
+class Meta(type):
 
     def __getattr__(self, item):
-        return lambda: print(item)
+        print(item)
+        return item
 
+class Tmp(metaclass=Meta):
+    pass
 
-TMP().a()
+Tmp.asdf

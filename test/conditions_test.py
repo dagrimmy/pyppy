@@ -16,7 +16,7 @@ class ConditionsTest(TestCase):
             debug=True
         ):
 
-            @condition.config(Exp(debug=True))
+            @condition(Exp(debug=True))
             def func_1():
                 return "executed"
 

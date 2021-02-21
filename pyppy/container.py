@@ -6,21 +6,38 @@ from typing import Any
 
 
 class _Container:
-
     pass
+
+
+class _Initialize:
+    def __call__(self, container_name: str, initial_content: Any = SimpleNamespace()):
+        setattr(_Container, container_name, initial_content)
 
 
 class _Initializer:
 
-    def __call__(self, container_name: str, initial_content: Any = SimpleNamespace()):
-        setattr(_Container, container_name, initial_content)
-
-    def __getattr__(self, container_name):
+    def __getattr__(self, container_name: str):
         return lambda initial_content = SimpleNamespace(): setattr(_Container, container_name, initial_content)
 
 
-initialize = _Initializer()
-initialize.__doc__ = """initialize"""
+initialize = _Initialize()
+"""initialize"""
+
+initializer = _Initializer()
+"""initializer"""
+def fun():
+    pass
+
+class Tmp:
+
+    def __call__(self, name, content):
+        print(name, content)
+
+    def __getattr__(self, item):
+        return fun
+
+a = Tmp()
+"""asdfasdf"""
 
 
 class _Getter:
@@ -36,11 +53,13 @@ get = _Getter()
 get.__doc__ = """get"""
 
 
-class _Destroyer:
+class _Destroy:
 
     def __call__(self, container_name):
         delattr(_Container, container_name)
 
+
+class _Destroyer:
     def __getattr__(self, container_name):
         return lambda: delattr(_Container, container_name)
 
