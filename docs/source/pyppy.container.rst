@@ -1,18 +1,5 @@
-pyppy.container package
-=======================
-
-Submodules
-----------
-
-.. toctree::
-   :maxdepth: 4
-
-   pyppy.container.config
-   pyppy.container.container
-   pyppy.container.state
-
-Module contents
----------------
+pyppy.container module
+======================
 
 .. automodule:: pyppy.container
    :members:

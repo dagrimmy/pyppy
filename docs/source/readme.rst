@@ -97,7 +97,7 @@ as an attribute of your config it will automatically be filled with the correspo
 
 .. code-block:: python
 
-   from pyppy.arg_filling.args import fill_args
+   from pyppy.args.args import fill_args
 
    initialize_config()
    config().debug = True
@@ -171,12 +171,12 @@ has the value ``True``.
 
 .. code-block:: python
 
-   from pyppy.conditions import Exp, condition
+   from pyppy.conditions import Exp, _condition
 
    initialize_config()
    config().debug = False
 
-   @condition(Exp(debug=True))
+   @_condition(Exp(debug=True))
    def debug_log():
        return "hello"
 
@@ -225,13 +225,13 @@ to be true you can use ``or_`` and ``and_`` to build the logic around them. ``or
 
 .. code-block:: python
 
-   from pyppy.conditions import condition, Exp, and_
+   from pyppy.conditions import _condition, Exp, and_
 
    initialize_config()
    config().log_level = "WARN"
    config().specific_log_level = "LEVEL_1"
 
-   @condition(
+   @_condition(
        and_(
            Exp(log_level="WARN"),
            Exp(specific_log_level="LEVEL_1")
@@ -270,3 +270,12 @@ TODO
   the overridden attribute should be reflected in the global state()
 * Make decisions (decide which function to execute) with a decorator that allows to 
   choose a path based on config and state  
+* Check how memory behaves when deleting containers (will objects still have references
+  and garbage collected correctly?)
+* Logging of erroneous usage (overwrite of containers)?
+* Memory test: initialize a million containers and see how memory behaves and gets freed up
+* Shared state over processes? 
+* Feature toggle idea: in code 
+
+  * ``python condition.if.config(Exp(debug=True), func_1).elif.config(Exp(debug=False), func_2).else(func_3))``
+  * Maybe good maybe not, think about it

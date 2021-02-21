@@ -6,7 +6,7 @@ Welcome to pyppy's documentation!
    :caption: Contents:
 
    Overview <readme>
-   Global Config <pyppy.container.config>
+   Global Container <pyppy.container>
    Global State <pyppy.container.state>
    Arg Filling from Config <pyppy.arg_filling.config>
    Arg Filling from State <pyppy.arg_filling.state>

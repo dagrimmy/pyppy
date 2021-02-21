@@ -1,4 +1,4 @@
-from pyppy.args import Fill, fill
+from pyppy.args import _Fill, fill
 from pyppy.container import destroy_all
 from test.utils.fake_container import fake_container
 from test.utils.testcase import TestCase
@@ -16,7 +16,7 @@ class ArgFillingTest(TestCase):
             debug=True
         ):
 
-            @Fill().config()
+            @_Fill().config()
             def func_1(debug):
                 return debug
 

@@ -3,6 +3,7 @@ TODO
 """
 
 import functools
+import uuid
 from inspect import signature
 from typing import Callable, Any
 
@@ -14,7 +15,7 @@ from pyppy.utils.exception import (
 )
 
 
-_UNSET_VALUE = "<pyppy-unset-value>"
+_UNSET_VALUE = uuid.uuid4()
 
 
 def _check_func_signature_supported(func: Callable) -> None:
@@ -40,10 +41,7 @@ def _check_func_signature_supported(func: Callable) -> None:
             )
 
 
-def fill_args_factory(container_name: str) -> Callable:
-    """
-    TODO
-    """
+def _fill_args_factory(container_name: str) -> Callable:
 
     def _fill_args(*args_to_be_filled: str) -> Callable:
 
@@ -114,13 +112,15 @@ def fill_args_factory(container_name: str) -> Callable:
     return _fill_args
 
 
-class Fill:
-
-    """Kind of a fill_args factory"""
+class _Fill:
 
     def __getattr__(self, container_name):
-        return fill_args_factory(container_name)
+        return _fill_args_factory(container_name)
 
 
-fill = Fill()
-fill.__doc__ = """fill is shorthand for Fill()"""
+fill = _Fill()
+fill.__doc__ = (
+    """
+    
+    """
+)
