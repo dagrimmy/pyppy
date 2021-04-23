@@ -5,67 +5,33 @@ from types import SimpleNamespace
 from typing import Any
 
 
+DEFAULT_CONTAINER_NAME = "default"
+
+
 class _Container:
     pass
 
 
-class _Initialize:
-    def __call__(self, container_name: str, initial_content: Any = SimpleNamespace()):
+def initialize(initial_content: Any = SimpleNamespace(), container_name: str = None):
+    """docstring"""
+    if container_name is None:
+        setattr(_Container, DEFAULT_CONTAINER_NAME, initial_content)
+    else:
         setattr(_Container, container_name, initial_content)
 
 
-class _Initializer:
-
-    def __getattr__(self, container_name: str):
-        return lambda initial_content = SimpleNamespace(): setattr(_Container, container_name, initial_content)
-
-
-initialize = _Initialize()
-"""initialize"""
-
-initializer = _Initializer()
-"""initializer"""
-def fun():
-    pass
-
-class Tmp:
-
-    def __call__(self, name, content):
-        print(name, content)
-
-    def __getattr__(self, item):
-        return fun
-
-a = Tmp()
-"""asdfasdf"""
-
-
-class _Getter:
-
-    def __getattr__(self, container_name):
-        return getattr(_Container, container_name)
-
-    def __getitem__(self, container_name):
+def get(container_name: str = None):
+    if container_name is None:
+        return getattr(_Container, DEFAULT_CONTAINER_NAME)
+    else:
         return getattr(_Container, container_name)
 
 
-get = _Getter()
-get.__doc__ = """get"""
-
-
-class _Destroy:
-
-    def __call__(self, container_name):
+def destroy(container_name: str = None):
+    if container_name is None:
+        delattr(_Container, DEFAULT_CONTAINER_NAME)
+    else:
         delattr(_Container, container_name)
-
-
-class _Destroyer:
-    def __getattr__(self, container_name):
-        return lambda: delattr(_Container, container_name)
-
-
-destroy = _Destroyer()
-destroy.__doc__ = """destroy"""
 
 
 def destroy_all():

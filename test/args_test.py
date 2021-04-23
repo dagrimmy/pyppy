@@ -16,7 +16,7 @@ class ArgFillingTest(TestCase):
             debug=True
         ):
 
-            @_Fill().config()
+            @fill.config()
             def func_1(debug):
                 return debug
 
